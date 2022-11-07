@@ -1,0 +1,41 @@
+{
+	"name": "@benev/humanoid",
+	"description": "",
+	"version": "0.0.0-dev.0",
+	"license": "MIT",
+	"type": "module",
+	"author": "Chase Moskal <chasemoskal@gmail.com>",
+	"files": [
+		"x",
+		"s"
+	],
+	"main": "x/humanoid.js",
+	"scripts": {
+		"build": "run-s clean && run-p compile importly && run-s test bundle minify",
+		"clean": "rimraf x && mkdirp x",
+		"compile": "tsc",
+		"importly": "importly < package-lock.json > x/importmap.json",
+		"bundle": "rollup x/demo.js -p @rollup/plugin-node-resolve --format iife --file x/demo.bundle.js",
+		"minify": "terser x/demo.bundle.js -cm --source-map --comments false -o x/demo.bundle.min.js",
+		"watch": "tsc -w",
+		"start": "http-server",
+		"dev": "run-p watch start",
+		"test": "cynic node x/tests.test.js"
+	},
+	"keywords": [],
+	"dependencies": {
+		"es-module-shims": "^1.6.2"
+	},
+	"devDependencies": {
+		"@rollup/plugin-node-resolve": "^15.0.1",
+		"cynic": "0.1.0-dev.16",
+		"http-server": "^14.1.0",
+		"importly": "^0.2.0",
+		"mkdirp": "^1.0.4",
+		"npm-run-all": "^4.1.5",
+		"rimraf": "^3.0.2",
+		"rollup": "^3.2.5",
+		"terser": "^5.15.1",
+		"typescript": "^4.8.4"
+	}
+}

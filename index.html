@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<meta name="darkreader" content="dark"/>
+
+	<title>humanoid</title>
+	<link rel=stylesheet href="/index.css"/>
+
+	<script>
+		const isDevMode = new URLSearchParams(window.location.search).has("dev")
+
+		function loadModule(type, src) {
+			const script = document.createElement("script")
+			script.defer = true
+			script.type = type
+			script.src = src
+			document.head.appendChild(script)
+		}
+
+		if (isDevMode) {
+			loadModule("importmap-shim", "/x/importmap.json")
+			loadModule("module-shim", "/x/demo.js")
+			loadModule("module", "/node_modules/es-module-shims/dist/es-module-shims.wasm.js")
+		}
+		else {
+			loadModule("module", "/x/demo.bundle.min.js")
+		}
+	</script>
+</head>
+<body>
+	<h1>humanoid is loading...</h1>
+</body>
+</html>

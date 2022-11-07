@@ -1,0 +1,16 @@
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	background: #112;
+	color: #556;
+}
+
+html, body, canvas {
+	width: 100%;
+	height: 100%;
+}
