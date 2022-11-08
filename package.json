@@ -24,13 +24,13 @@
 	},
 	"keywords": [],
 	"dependencies": {
+		"@babylonjs/core": "^5.31.1",
+		"@babylonjs/loaders": "^5.31.1",
 		"@chasemoskal/magical": "^0.0.1",
 		"dbmage": "^0.0.0",
 		"es-module-shims": "^1.6.2",
 		"lit": "^2.4.1",
 		"sparrow-rtc": "^0.0.0-dev.6",
-		"@babylonjs/core": "^5.31.1",
-		"@babylonjs/loaders": "^5.31.1",
 		"xiome": "^0.0.32"
 	},
 	"devDependencies": {
