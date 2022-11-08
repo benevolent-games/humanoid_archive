@@ -9,18 +9,20 @@ import "@babylonjs/core/Culling/ray.js"
 import {makeTheater} from "./utils/theater.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
 
-console.log("🤖")
-
-const theater = makeTheater()
-window.addEventListener("resize", theater.onresize)
-
-document.querySelector("[data-loading]")!.remove()
-document.body.appendChild(theater.canvas)
-
-theater.onresize()
-theater.start()
-
-await showCoolGlb({
-	...theater,
-	url: `https://dl.dropbox.com/s/75bruebli9xg2l6/humanoid8.glb`,
-})
+void async function main() {
+	console.log("🤖")
+	
+	const theater = makeTheater()
+	window.addEventListener("resize", theater.onresize)
+	
+	document.querySelector("[data-loading]")!.remove()
+	document.body.appendChild(theater.canvas)
+	
+	theater.onresize()
+	theater.start()
+	
+	await showCoolGlb({
+		...theater,
+		url: `https://dl.dropbox.com/s/75bruebli9xg2l6/humanoid8.glb`,
+	})
+}()

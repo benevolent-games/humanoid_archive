@@ -15,7 +15,7 @@
 		"clean": "rimraf x && mkdirp x",
 		"compile": "tsc",
 		"importly": "importly < package-lock.json > x/importmap.json",
-		"bundle": "rollup x/demo.js -p @rollup/plugin-node-resolve --format iife --file x/demo.bundle.js",
+		"bundle": "rollup x/demo.js -p @rollup/plugin-node-resolve --format es --file x/demo.bundle.js",
 		"minify": "terser x/demo.bundle.js -cm --source-map --comments false -o x/demo.bundle.min.js",
 		"watch": "tsc -w",
 		"start": "http-server",
