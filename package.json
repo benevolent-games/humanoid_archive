@@ -11,7 +11,9 @@
 	],
 	"main": "x/humanoid.js",
 	"scripts": {
+		"postinstall": "run-s hack-babylon",
 		"build": "run-s clean && run-p compile importly && run-s test bundle minify",
+		"hack-babylon": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
 		"clean": "rimraf x && mkdirp x",
 		"compile": "tsc",
 		"importly": "importly < package-lock.json > x/importmap.json",
