@@ -7,7 +7,9 @@ import "@babylonjs/core/Lights/Shadows/index.js"
 import "@babylonjs/core/Culling/ray.js"
 
 import {makeTheater} from "./utils/theater.js"
+import {spawnCube} from "./utils/spawn-cube.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
+import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 
 void async function main() {
 	console.log("🤖")
@@ -25,4 +27,6 @@ void async function main() {
 		...theater,
 		url: `https://dl.dropbox.com/s/75bruebli9xg2l6/humanoid8.glb`,
 	})
+
+	await spawnCube(theater.scene, new Vector3(3, 1, 0))
 }()

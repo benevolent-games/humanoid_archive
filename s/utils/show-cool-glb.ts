@@ -16,8 +16,8 @@ export async function showCoolGlb({url, scene, canvas}: {
 		const name = "cam"
 		const alpha = 0
 		const beta = 0
-		const radius = 50
-		const target = new Vector3(0, 0, 0)
+		const radius = 3
+		const target = new Vector3(0, 5, 0)
 		const setActiveOnSceneIfNoneActive = true
 		return new ArcRotateCamera(
 			name,
