@@ -5,6 +5,9 @@ import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {ArcRotateCamera} from "@babylonjs/core/Cameras/arcRotateCamera.js"
+import {FlyCamera} from "@babylonjs/core/Cameras/flyCamera.js"
+import {UniversalCamera} from "@babylonjs/core/Cameras/universalCamera.js"
+import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 
 export async function showCoolGlb({url, scene, canvas}: {
 		url: string
@@ -14,25 +17,19 @@ export async function showCoolGlb({url, scene, canvas}: {
 
 	const camera = (() => {
 		const name = "cam"
-		const alpha = 0
-		const beta = 0
-		const radius = 3
-		const target = new Vector3(0, 5, 0)
-		const setActiveOnSceneIfNoneActive = true
-		return new ArcRotateCamera(
-			name,
-			alpha,
-			beta,
-			radius,
-			target,
-			scene,
-			setActiveOnSceneIfNoneActive,
-		)
+		const position = new Vector3(0, 0, 0)
+		return new UniversalCamera(name, position, scene)
 	})()
 
 	camera.attachControl(canvas, true)
 	camera.minZ = 0.5
-	camera.maxZ = 500.0
+	camera.speed = 0.75
+	camera.angularSensibility = 4000
+
+	camera.keysUp.push(87)
+	camera.keysLeft.push(65)
+	camera.keysDown.push(83)
+	camera.keysRight.push(68)
 
 	const assets = await loadGlb(scene, url)
 	const meshes = new Set(assets.meshes)
