@@ -11,6 +11,7 @@ import {spawnCube} from "./utils/spawn-cube.js"
 import {installNubs} from "./utils/install-nubs.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
+import {makeRealmEcs} from "./realm/ecs.js"
 
 void async function main() {
 	installNubs()
@@ -34,7 +35,30 @@ void async function main() {
 		url: `https://dl.dropbox.com/s/75bruebli9xg2l6/humanoid8.glb`,
 	})
 
-	await spawnCube(theater.scene, new Vector3(3, 1, 0))
+	const box = await spawnCube(
+		theater.scene,
+		new Vector3(3, 1, 0),
+	)
+
+	const realm = makeRealmEcs<{
+			count: number
+		}>(({system}) => ({
+
+		systems: [
+			system()
+				.label("counter")
+				.selector(({count}) => ({count}))
+				.executor(({count}) => {
+					const newCount = count + 1
+					console.log("COUNT", newCount)
+					return {count: newCount}
+				}),
+		]
+	}))
+
+	const id = realm.addEntity({count: 0})
+	realm.executeSystems()
+	setInterval(realm.executeSystems, 1000)
 
 	console.log("🤖 humanoid ready")
 }()
