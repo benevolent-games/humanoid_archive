@@ -10,10 +10,3 @@ export const system = <xComponents extends {}>() => ({
 		})
 	})
 })
-
-export function system2<xComponents extends {}>(
-		label: string,
-		executor: <xSelected extends Partial<xComponents>>(s: xSelected) => xSelected,
-	): void {
-	return undefined
-}

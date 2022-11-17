@@ -1,43 +1,58 @@
 
 import {system} from "./internal/system.js"
 import {prepareRealmState} from "./internal/state.js"
-import {AnySystem, EntityId, Setup} from "./internal/types.js"
-import {interrogateSystemSelectorsToCacheRelevantComponentKeys} from "./internal/multitool.js"
-import {proxyThatRemembersPropertyReads} from "./internal/handbag/proxy-that-remembers-property-reads.js"
+import {EntityId, ComponentId, System, Setup} from "./internal/types.js"
+
+export function uniformEcsContext<xComponents extends {}>() {
+	const entities = new Map<EntityId, string[]>()
+	const components = new Map<EntityId, any>()
+	const systems = new Set<System<xComponents, any>>()
+
+	const pullNextId = (() => {
+		let count = 0
+		return () => count++
+	})()
+
+	return {
+		systems,
+		entities: {
+			insert<xInsertedComponents extends Partial<xComponents>>(components: xInsertedComponents) {
+				const id = pullNextId()
+			},
+		},
+		executeAllSystems() {
+			for (const system of systems) {
+				
+			}
+		},
+	}
+}
+
+export module octo {
+
+	export async function host({}: {
+			label: string
+			signalServerUrl: string
+		}) {
+		console.warn("TODO")
+		const connected: any = undefined
+
+
+	}
+
+	export async function client({}: {
+		sessionId: string
+		signalServerUrl: string
+		}) {
+		console.warn("TODO")
+	}
+}
 
 export function makeRealmEcs<xComponents extends {}>(
 		setup: Setup<xComponents>
 	) {
 
 	const {systems} = setup({system: () => (system<xComponents>())})
-
-	// const getSystemComponentKeys = (
-	// 	interrogateSystemSelectorsToCacheRelevantComponentKeys(systems)
-	// )
-
-	// const data = (() => {
-	// 	const mapOfComponentData = new Map<string, Map<EntityId, any>>()
-	// 	const mapOfEntities = new Map<EntityId, Set<string>>()
-
-	// 	const pullNewId = (() => {
-	// 		let count = 0
-	// 		return () => count++
-	// 	})()
-
-	// 	function getComponentDataMap(componentKey: string) {
-	// 		let dataMap = mapOfComponentData.get(componentKey)
-	// 		if (!dataMap) {
-	// 			dataMap = new Map<EntityId, any>()
-	// 			mapOfComponentData.set(componentKey, dataMap)
-	// 		}
-	// 		return dataMap
-	// 	}
-
-	// 	return {
-	// 		pullNewId,
-	// 		getComponentDataMap,
-	// 	}
-	// })()
 
 	const state = prepareRealmState(systems)
 

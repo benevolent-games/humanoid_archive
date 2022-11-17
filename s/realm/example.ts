@@ -1,18 +1,24 @@
 
-import {makeRealmEcs} from "./ecs.js"
+import {system} from "./internal/system.js"
+import {makeRealmEcs, octo, uniformEcsContext} from "./ecs.js"
 
 export interface Components {
 	count: number
 	position: [number, number, number]
 }
 
-const realm = makeRealmEcs<Components>(({system}) => ({
-	systems: [
-		system()
-			.label("counter")
-			.selector(c => ({count: c.count}))
-			.executor(s => ({count: s.count + 1})),
-	],
-}))
+// const netcode = await octo.host({
+// 	label: "my game session",
+// 	signalServerUrl: "wss://sparrow-rtc.benevolent.games/",
+// })
 
-realm.addEntity({count: 0})
+const ecs = uniformEcsContext<Components>()
+
+ecs.systems.add(
+	system<Components>()
+		.label("counter")
+		.selector(({count}) => ({count}))
+		.executor(({count}) => ({count: count + 1})),
+)
+
+ecs.entities.insert({count: 100})
