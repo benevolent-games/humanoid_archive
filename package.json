@@ -26,9 +26,9 @@
 	},
 	"keywords": [],
 	"dependencies": {
-		"@babylonjs/core": "^5.31.1",
-		"@babylonjs/loaders": "^5.31.1",
-		"@chasemoskal/magical": "^0.0.1",
+		"@babylonjs/core": "^5.33.0",
+		"@babylonjs/loaders": "^5.33.0",
+		"@chasemoskal/magical": "^0.0.4",
 		"dbmage": "^0.0.0",
 		"es-module-shims": "^1.6.2",
 		"lit": "^2.4.1",
@@ -44,8 +44,8 @@
 		"mkdirp": "^1.0.4",
 		"npm-run-all": "^4.1.5",
 		"rimraf": "^3.0.2",
-		"rollup": "^3.2.5",
+		"rollup": "^3.3.0",
 		"terser": "^5.15.1",
-		"typescript": "^4.8.4"
+		"typescript": "^4.9.3"
 	}
 }
