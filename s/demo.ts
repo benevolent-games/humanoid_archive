@@ -8,11 +8,17 @@ import "@babylonjs/core/Culling/ray.js"
 
 import {makeTheater} from "./utils/theater.js"
 import {spawnCube} from "./utils/spawn-cube.js"
+import {installNubs} from "./utils/install-nubs.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 
 void async function main() {
-	console.log("🤖")
+	installNubs()
+		.listenForAction(event => {
+			console.log(event.type, ...Object.values(event.detail))
+		})
+
+	console.log("🔘 nubs ready")
 	
 	const theater = makeTheater()
 	window.addEventListener("resize", theater.onresize)
@@ -29,4 +35,6 @@ void async function main() {
 	})
 
 	await spawnCube(theater.scene, new Vector3(3, 1, 0))
+
+	console.log("🤖 humanoid ready")
 }()
