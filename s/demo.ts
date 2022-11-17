@@ -26,6 +26,7 @@ void async function main() {
 	
 	document.querySelector("[data-loading]")!.remove()
 	document.body.appendChild(theater.canvas)
+	document.body.appendChild(theater.framerateDisplay)
 	
 	theater.onresize()
 	theater.start()

@@ -2,9 +2,9 @@
 import {Scene} from "@babylonjs/core/scene.js"
 import {Engine} from "@babylonjs/core/Engines/engine.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
-import {Vector3} from "@babylonjs/core/Maths/math.js"
 
 import "@babylonjs/core/Collisions/collisionCoordinator.js"
+import {makeFramerateDisplay} from "./make-framerate-display.js"
 
 export type Theater = ReturnType<typeof makeTheater>
 
@@ -24,6 +24,10 @@ export function makeTheater() {
 		if(evnt.button === 1) engine.exitPointerlock();
 	}
 
+	const framerateDisplay = makeFramerateDisplay({
+		getFramerate: () => engine.getFps()
+	})
+
 	scene.clearColor = new Color4(62 / 255, 129 / 255, 186 / 255, 1)
 	scene.ambientColor = new Color3(0.005, 0.005, 0.005)
 	;(<any>window).engine = engine
@@ -35,6 +39,7 @@ export function makeTheater() {
 		scene,
 		engine,
 		renderLoop,
+		framerateDisplay,
 		onresize() {
 			const {width, height} = canvas.getBoundingClientRect()
 			canvas.width = width

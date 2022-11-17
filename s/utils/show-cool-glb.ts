@@ -3,11 +3,16 @@ import {loadGlb} from "./babylon/load-glb.js"
 import {Scene} from "@babylonjs/core/scene.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
-import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
-import {ArcRotateCamera} from "@babylonjs/core/Cameras/arcRotateCamera.js"
-import {FlyCamera} from "@babylonjs/core/Cameras/flyCamera.js"
-import {UniversalCamera} from "@babylonjs/core/Cameras/universalCamera.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
+import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
+
+import { Quaternion } from "@babylonjs/core/Maths/math.vector.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
+
+import {V2} from "../utils/v2.js"
+import * as v2 from "../utils/v2.js"
+import {cap} from "../utils/numpty.js"
+import {makeSpectatorCamera} from "./make-spectator-camera.js"
 
 export async function showCoolGlb({url, scene, canvas}: {
 		url: string
@@ -15,21 +20,7 @@ export async function showCoolGlb({url, scene, canvas}: {
 		canvas: HTMLCanvasElement
 	}) {
 
-	const camera = (() => {
-		const name = "cam"
-		const position = new Vector3(0, 0, 0)
-		return new UniversalCamera(name, position, scene)
-	})()
-
-	camera.attachControl(canvas, true)
-	camera.minZ = 0.5
-	camera.speed = 0.75
-	camera.angularSensibility = 4000
-
-	camera.keysUp.push(87)
-	camera.keysLeft.push(65)
-	camera.keysDown.push(83)
-	camera.keysRight.push(68)
+	makeSpectatorCamera({scene})
 
 	const assets = await loadGlb(scene, url)
 	const meshes = new Set(assets.meshes)
