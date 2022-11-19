@@ -19,11 +19,6 @@ export function makeTheater() {
 		useMaterialMeshMap: true,
 	})
 
-	scene.onPointerDown = evnt => {
-		if(evnt.button === 0) engine.enterPointerlock();
-		if(evnt.button === 1) engine.exitPointerlock();
-	}
-
 	const framerateDisplay = makeFramerateDisplay({
 		getFramerate: () => engine.getFps()
 	})

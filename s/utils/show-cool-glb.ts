@@ -2,25 +2,27 @@
 import {loadGlb} from "./babylon/load-glb.js"
 import {Scene} from "@babylonjs/core/scene.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
-import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
-import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
+import {makeSpectatorCamera} from "./make-spectator-camera.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 
-import { Quaternion } from "@babylonjs/core/Maths/math.vector.js"
-import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
+import {NubContext} from "@benev/nubs"
 
-import {V2} from "../utils/v2.js"
-import * as v2 from "../utils/v2.js"
-import {cap} from "../utils/numpty.js"
-import {makeSpectatorCamera} from "./make-spectator-camera.js"
-
-export async function showCoolGlb({url, scene, canvas}: {
+export async function showCoolGlb({url, scene, canvas, renderLoop}: {
 		url: string
 		scene: Scene
 		canvas: HTMLCanvasElement
+		renderLoop: Set<() => void>
 	}) {
 
-	makeSpectatorCamera({scene})
+	const cam = makeSpectatorCamera({scene})
+	const nubContext: InstanceType <typeof NubContext> = document.querySelector("nub-context")!
+
+	renderLoop.add(() => {
+		const lookVector = nubContext.actions.vector2["look"]?.vector
+		if(lookVector) {
+			cam.rotateCamera(lookVector)
+		}
+	})
 
 	const assets = await loadGlb(scene, url)
 	const meshes = new Set(assets.meshes)

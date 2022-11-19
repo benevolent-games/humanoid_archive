@@ -11,11 +11,11 @@ import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 export function makeSpectatorCamera({scene}: {
 		scene: Scene
 	}) {
-	const camParent = new TransformNode("camT", scene)
 
+	const camParent = new TransformNode("camT", scene)
 	const camera = (() => {
 		const name = "cam"
-		const position = new Vector3(0, 0, 0)
+		const position = new Vector3(0, 5, 0)
 		return new TargetCamera(name, position, scene)
 	})()
 
@@ -23,9 +23,9 @@ export function makeSpectatorCamera({scene}: {
 	camera.maxZ = 20_000
 	camera.parent = camParent
 	camera.ignoreParentScaling = true
-	camera.fov = 1.2
+	// camera.fov = 1
 
-	const mouseSensitivity = 1 / 5_00
+	const mouseSensitivity = 1 / 5_0
 	let currentLook = v2.zero()
 
 	function lookAdd(vector: V2) {
@@ -38,17 +38,17 @@ export function makeSpectatorCamera({scene}: {
 		lookAdd(v2.multiplyBy(mouseforce, mouseSensitivity))
 	}
 
-	window.addEventListener("mousemove", (event) => {
-		const {movementX, movementY} = event
-		if (document.pointerLockElement) {
-			addMouseforce([movementX, movementY])
+	return {
+		camera,
+		rotateCamera(vectors: V2) {
+			addMouseforce(vectors)
 			const [x, y] = currentLook
 			camera.rotationQuaternion = Quaternion.RotationYawPitchRoll(
-				0, y, 0,
+				0, -y, 0,
 			)
 			camParent.rotationQuaternion = Quaternion.RotationYawPitchRoll(
 				x, 0, 0
 			)
 		}
-	})
+	}
 }

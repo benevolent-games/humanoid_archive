@@ -15,12 +15,8 @@ import {makeRealmEcs} from "./realm/ecs.js"
 
 void async function main() {
 	installNubs()
-		.listenForAction(event => {
-			console.log(event.type, ...Object.values(event.detail))
-		})
-
 	console.log("🔘 nubs ready")
-	
+
 	const theater = makeTheater()
 	window.addEventListener("resize", theater.onresize)
 	
