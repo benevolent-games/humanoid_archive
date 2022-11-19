@@ -26,8 +26,8 @@
 	},
 	"keywords": [],
 	"dependencies": {
-		"@babylonjs/core": "^5.33.0",
-		"@babylonjs/loaders": "^5.33.0",
+		"@babylonjs/core": "^5.33.1",
+		"@babylonjs/loaders": "^5.33.1",
 		"@benev/nubs": "^0.0.1",
 		"@chasemoskal/magical": "^0.0.4",
 		"dbmage": "^0.0.0",
