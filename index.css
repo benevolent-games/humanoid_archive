@@ -24,3 +24,18 @@ html, body, canvas {
 	opacity: .7;
 	text-shadow: -2px 2px 3px black;
 }
+
+nub-context {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: flex-end;
+}
+
+nub-stick {
+	opacity: .5;
+}
+
+nub-stick[channel="lookstick"] {
+	margin-left: 15rem;
+}
