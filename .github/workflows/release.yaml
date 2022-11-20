@@ -41,7 +41,7 @@ jobs:
       run: npm ci
 
     - name: 🔨 build
-      run: npm run build -s
+      run: npm run build
 
     - name: 🧪 test
       run: npm test
@@ -54,7 +54,7 @@ jobs:
     - name: 🗃️ reconstitute node_modules for production
       run: |
         rm -rf node_modules
-        npm ci --production
+        HUMANOID_IGNORE_DEV_POSTINSTALL="yes" npm ci --omit=dev
 
     - name: 📝 configure pages
       uses: actions/configure-pages@v2

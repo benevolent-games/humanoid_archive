@@ -11,7 +11,7 @@
 	],
 	"main": "x/humanoid.js",
 	"scripts": {
-		"postinstall": "run-s hack-babylon",
+		"postinstall": "if test -z \"$HUMANOID_IGNORE_DEV_POSTINSTALL\"; then run-p hack-babylon; fi",
 		"build": "run-s clean && run-p compile importly && run-s test bundle minify",
 		"hack-babylon": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
 		"clean": "rimraf x && mkdirp x",
