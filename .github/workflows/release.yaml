@@ -26,8 +26,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+
     - name: 🔔 checkout
       uses: actions/checkout@v3
+      with:
+        lfs: true
 
     - name: 🔧 setup node
       uses: actions/setup-node@v3
@@ -53,14 +56,14 @@ jobs:
         rm -rf node_modules
         npm ci --production
 
-    - name: Setup Pages
+    - name: 📝 configure pages
       uses: actions/configure-pages@v2
 
-    - name: Upload artifact
+    - name: 📤 upload pages artifact
       uses: actions/upload-pages-artifact@v1
       with:
         path: '.'
 
-    - name: Deploy to GitHub Pages
+    - name: 🚀 deploy to github pages
       id: deployment
       uses: actions/deploy-pages@v1
