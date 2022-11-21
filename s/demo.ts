@@ -15,6 +15,9 @@ import {makeRealmEcs} from "./realm/ecs.js"
 
 void async function main() {
 	installNubs()
+	// 	.listenForAction((event) => {
+	// 		console.log(event.detail)
+	// 	})
 	console.log("🔘 nubs ready")
 
 	const theater = makeTheater()
@@ -55,7 +58,7 @@ void async function main() {
 
 	const id = realm.addEntity({count: 0})
 	realm.executeSystems()
-	setInterval(realm.executeSystems, 1000)
+	// setInterval(realm.executeSystems, 1000)
 
 	console.log("🤖 humanoid ready")
 }()

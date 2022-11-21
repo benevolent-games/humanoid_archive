@@ -12,18 +12,20 @@ export function makeSpectatorCamera({scene}: {
 		scene: Scene
 	}) {
 
-	const camParent = new TransformNode("camT", scene)
+	const transformA = new TransformNode("camA", scene)
+	const transformB = new TransformNode("camB", scene)
 	const camera = (() => {
 		const name = "cam"
-		const position = new Vector3(0, 5, 0)
+		const position = new Vector3(0, 0, 0)
 		return new TargetCamera(name, position, scene)
 	})()
 
 	camera.minZ = 0.3
 	camera.maxZ = 20_000
-	camera.parent = camParent
 	camera.ignoreParentScaling = true
-	// camera.fov = 1
+
+	camera.parent = transformB
+	transformB.parent = transformA
 
 	const mouseSensitivity = 1 / 5_0
 	let currentLook = v2.zero()
@@ -43,12 +45,20 @@ export function makeSpectatorCamera({scene}: {
 		rotateCamera(vectors: V2) {
 			addMouseforce(vectors)
 			const [x, y] = currentLook
-			camera.rotationQuaternion = Quaternion.RotationYawPitchRoll(
+			transformB.rotationQuaternion = Quaternion.RotationYawPitchRoll(
 				0, -y, 0,
 			)
-			camParent.rotationQuaternion = Quaternion.RotationYawPitchRoll(
+			transformA.rotationQuaternion = Quaternion.RotationYawPitchRoll(
 				x, 0, 0
 			)
+		},
+		moveCam(vector: V2) {
+			const [x, z] = vector
+			const translation = new Vector3(x, 0, z)
+			const newPosition = translation.applyRotationQuaternion(
+				transformB.absoluteRotationQuaternion
+			)
+			transformA.position.addInPlace(newPosition)
 		}
 	}
 }

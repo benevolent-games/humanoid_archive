@@ -6,6 +6,7 @@ import {makeSpectatorCamera} from "./make-spectator-camera.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 
 import {NubContext} from "@benev/nubs"
+import {walker} from "./walker.js"
 
 export async function showCoolGlb({url, scene, canvas, renderLoop}: {
 		url: string
@@ -14,14 +15,34 @@ export async function showCoolGlb({url, scene, canvas, renderLoop}: {
 		renderLoop: Set<() => void>
 	}) {
 
+	const walk = 1
+	const sprint = walk * 2
+
 	const cam = makeSpectatorCamera({scene})
 	const nubContext: InstanceType <typeof NubContext> = document.querySelector("nub-context")!
 
 	renderLoop.add(() => {
-		const lookVector = nubContext.actions.vector2["look"]?.vector
+		const lookVector = nubContext.actions.vector2.look?.vector
 		if(lookVector) {
 			cam.rotateCamera(lookVector)
 		}
+
+		const moveVector = nubContext.actions.vector2.move?.vector
+		const isPressed = {
+			forward: !!nubContext.actions.key.forward?.pressed,
+			backward: !!nubContext.actions.key.backward?.pressed,
+			leftward: !!nubContext.actions.key.leftward?.pressed,
+			rightward: !!nubContext.actions.key.rightward?.pressed,
+		}
+
+		const walking = walker({
+			walk,
+			sprint,
+			isPressed,
+			moveVector
+		})
+
+		cam.moveCam(walking.getForce())
 	})
 
 	const assets = await loadGlb(scene, url)
