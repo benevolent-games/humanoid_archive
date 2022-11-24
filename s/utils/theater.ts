@@ -19,13 +19,13 @@ export function makeTheater() {
 		useMaterialMeshMap: true,
 	})
 
-	const framerateDisplay = makeFramerateDisplay({
-		getFramerate: () => engine.getFps()
-	})
-
 	scene.clearColor = new Color4(62 / 255, 129 / 255, 186 / 255, 1)
 	scene.ambientColor = new Color3(0.005, 0.005, 0.005)
 	;(<any>window).engine = engine
+
+	const framerateDisplay = makeFramerateDisplay({
+		getFramerate: () => engine.getFps()
+	})
 
 	const renderLoop = new Set<() => void>()
 

@@ -1,5 +1,5 @@
 
-import {getElements, themeElements, registerElements, themeCss, Nub, NubAction} from "@benev/nubs"
+import {getElements, themeElements, registerElements, themeCss, NubAction} from "@benev/nubs"
 
 export function installNubs() {
 	registerElements(

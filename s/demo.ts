@@ -6,18 +6,15 @@ import "@babylonjs/loaders/glTF/2.0/Extensions/KHR_draco_mesh_compression.js"
 import "@babylonjs/core/Lights/Shadows/index.js"
 import "@babylonjs/core/Culling/ray.js"
 
+import {makeRealmEcs} from "./realm/ecs.js"
 import {makeTheater} from "./utils/theater.js"
 import {spawnCube} from "./utils/spawn-cube.js"
 import {installNubs} from "./utils/install-nubs.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
-import {makeRealmEcs} from "./realm/ecs.js"
 
 void async function main() {
 	installNubs()
-	// 	.listenForAction((event) => {
-	// 		console.log(event.detail)
-	// 	})
 	console.log("🔘 nubs ready")
 
 	const theater = makeTheater()
@@ -32,6 +29,7 @@ void async function main() {
 	
 	await showCoolGlb({
 		...theater,
+		// url: `/assets/humanoid8.glb`,
 		url: `https://dl.dropbox.com/s/75bruebli9xg2l6/humanoid8.glb`,
 	})
 
