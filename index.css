@@ -40,3 +40,7 @@ nub-stick {
 nub-stick[channel="lookstick"] {
 	margin-left: 15rem;
 }
+
+body[data-pointer-lock="true"] nub-context {
+	visibility: hidden;
+}

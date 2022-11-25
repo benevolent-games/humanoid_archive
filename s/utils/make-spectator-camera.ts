@@ -90,11 +90,12 @@ export function makeSpectatorCamera({
 		const leftCLick = !!nubContext.actions.key.primary?.pressed
 		const rightClick = !!nubContext.actions.key.secondary?.pressed
 
-		if(leftCLick && !document.pointerLockElement)
+		if(leftCLick && !document.pointerLockElement) {
 			engine.enterPointerlock()
-
-		if(rightClick && document.pointerLockElement)
+		}
+		if(rightClick && document.pointerLockElement){
 			engine.exitPointerlock()
+		}
 
 		const lookVector = nubContext.actions.vector2.look?.vector
 		if(lookVector) {

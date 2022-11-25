@@ -5,6 +5,7 @@ import {Engine} from "@babylonjs/core/Engines/engine.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {makeSpectatorCamera} from "./make-spectator-camera.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
+import {wirePointerLockAttribute} from "./wire-pointer-lock-attribute.js"
 
 
 export async function showCoolGlb({url, scene, engine, renderLoop}: {
@@ -14,6 +15,7 @@ export async function showCoolGlb({url, scene, engine, renderLoop}: {
 		renderLoop: Set<() => void>
 	}) {
 
+	wirePointerLockAttribute(document.body, "data-pointer-lock")
 	makeSpectatorCamera({scene, engine, renderLoop})
 
 	const assets = await loadGlb(scene, url)
