@@ -35,12 +35,26 @@ nub-context {
 
 nub-stick {
 	opacity: .5;
+	height: auto;
 }
 
-nub-stick[channel="lookstick"] {
-	margin-left: 15rem;
+.wrap-sticks {
+	display: flex;
+	width: 100%;
+	font-size: 0.7rem;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 12vw;
+	margin: 1rem auto;
 }
 
 body[data-pointer-lock="true"] nub-context {
 	visibility: hidden;
+}
+
+@media (max-width: 970px) {
+	.wrap-sticks {
+		padding: 0 1vw;
+		gap: 8vw;
+	}
 }
