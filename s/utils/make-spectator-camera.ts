@@ -1,15 +1,17 @@
 
-import {V2} from "../utils/v2.js"
-import {walker} from "./walker.js"
-import * as v2 from "../utils/v2.js"
-import {cap} from "../utils/numpty.js"
+import {Nub, NubActionEvent, NubContext, NubStick} from "@benev/nubs"
+
 import {Scene} from "@babylonjs/core/scene.js"
-import {Nub, NubActionEvent, NubContext} from "@benev/nubs"
 import {Engine} from "@babylonjs/core/Engines/engine.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import { Quaternion } from "@babylonjs/core/Maths/math.vector.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
+
+import {V2} from "../utils/v2.js"
+import {walker} from "./walker.js"
+import * as v2 from "../utils/v2.js"
+import {cap} from "../utils/numpty.js"
 
 export function makeSpectatorCamera({
 		scene, engine, renderLoop
@@ -86,23 +88,24 @@ export function makeSpectatorCamera({
 		}
 	})
 
+	nubContext.addEventListener("pointerdown", (event: MouseEvent) => {
+		const target = event.target
+		if (target instanceof HTMLElement) {
+			const notAlreadyPointerLocked = !document.pointerLockElement
+			const notAStickElement = !(target instanceof NubStick)
+			const notNestedUnderAStickElement = !target.closest("nub-stick")
+			if (notAlreadyPointerLocked && notAStickElement && notNestedUnderAStickElement)
+				engine.enterPointerlock()
+		}
+	})
+
 	renderLoop.add(() => {
-		const leftCLick = !!nubContext.actions.key.primary?.pressed
-		const rightClick = !!nubContext.actions.key.secondary?.pressed
-
-		if(leftCLick && !document.pointerLockElement) {
-			engine.enterPointerlock()
-		}
-		if(rightClick && document.pointerLockElement){
-			engine.exitPointerlock()
-		}
-
-		const lookVector = nubContext.actions.vector2.look?.vector
-		if(lookVector) {
-			rotateCamera(lookVector, lookSensitivity.stick)
-		}
-
 		const moveVector = nubContext.actions.vector2.move?.vector
+		const lookVector = nubContext.actions.vector2.look?.vector
+
+		if (lookVector)
+			rotateCamera(lookVector, lookSensitivity.stick)
+
 		const isPressed = {
 			forward: !!nubContext.actions.key.forward?.pressed,
 			backward: !!nubContext.actions.key.backward?.pressed,
@@ -114,7 +117,7 @@ export function makeSpectatorCamera({
 			walk,
 			sprint,
 			isPressed,
-			moveVector
+			moveVector,
 		})
 
 		moveCam(walking.getForce())
