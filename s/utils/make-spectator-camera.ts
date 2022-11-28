@@ -4,7 +4,7 @@ import {walker} from "./walker.js"
 import * as v2 from "../utils/v2.js"
 import {cap} from "../utils/numpty.js"
 import {Scene} from "@babylonjs/core/scene.js"
-import {Nub, NubAction, NubContext} from "@benev/nubs"
+import {Nub, NubActionEvent, NubContext} from "@benev/nubs"
 import {Engine} from "@babylonjs/core/Engines/engine.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import { Quaternion } from "@babylonjs/core/Maths/math.vector.js"
@@ -76,8 +76,8 @@ export function makeSpectatorCamera({
 	type NubContext = InstanceType <typeof NubContext>
 	const nubContext: NubContext = document.querySelector("nub-context")!
 
-	nubContext.addEventListener(NubAction.eventName, (e) => {
-		const event = <NubAction>e
+	nubContext.addEventListener(NubActionEvent.eventName, (e) => {
+		const event = <NubActionEvent>e
 		if (event.detail.type === Nub.Type.Mouse) {
 			const [x, y] = event.detail.movement
 			const vector: V2 = [x, -y]

@@ -1,5 +1,5 @@
 
-import {getElements, themeElements, registerElements, themeCss, NubAction} from "@benev/nubs"
+import {getElements, themeElements, registerElements, themeCss, NubActionEvent} from "@benev/nubs"
 
 export function installNubs() {
 	registerElements(
@@ -9,10 +9,10 @@ export function installNubs() {
 		)
 	)
 	return {
-		listenForAction(listener: (event: NubAction) => void) {
-			window.addEventListener(NubAction.eventName, <any>listener)
+		listenForAction(listener: (event: NubActionEvent) => void) {
+			window.addEventListener(NubActionEvent.eventName, <any>listener)
 			return () => {
-				window.removeEventListener(NubAction.eventName, <any>listener)
+				window.removeEventListener(NubActionEvent.eventName, <any>listener)
 			}
 		},
 	}
