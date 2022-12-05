@@ -78,15 +78,16 @@ export function makeSpectatorCamera({
 	type NubContext = InstanceType <typeof NubContext>
 	const nubContext: NubContext = document.querySelector("nub-context")!
 
-	nubContext.addEventListener(NubActionEvent.eventName, (e) => {
-		const event = <NubActionEvent>e
-		if (event.detail.type === Nub.Type.Mouse) {
-			const [x, y] = event.detail.movement
-			const vector: V2 = [x, -y]
-			if(document.pointerLockElement)
-				rotateCamera(vector, lookSensitivity.mouse)
-		}
-	})
+	NubActionEvent
+		.target(nubContext)
+		.listen(event => {
+			if (event.detail.type === Nub.Type.Mouse) {
+				const [x, y] = event.detail.movement
+				const vector: V2 = [x, -y]
+				if(document.pointerLockElement)
+					rotateCamera(vector, lookSensitivity.mouse)
+			}
+		})
 
 	nubContext.addEventListener("pointerdown", (event: MouseEvent) => {
 		const target = event.target
