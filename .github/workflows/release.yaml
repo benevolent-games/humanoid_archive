@@ -56,13 +56,19 @@ jobs:
         rm -rf node_modules
         HUMANOID_IGNORE_DEV_POSTINSTALL="yes" npm ci --omit=dev
 
+    - name: 🗃️ copy files
+      run: |
+        rm -rf x/node_modules x/s
+        cp -r node_modules/ x/
+        cp -r s/ x/
+
     - name: 📝 configure pages
       uses: actions/configure-pages@v2
 
     - name: 📤 upload pages artifact
       uses: actions/upload-pages-artifact@v1
       with:
-        path: '.'
+        path: 'x'
 
     - name: 🚀 deploy to github pages
       id: deployment
