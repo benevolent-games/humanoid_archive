@@ -1,5 +1,5 @@
 
-import {Nub, NubActionEvent, NubBindingsEditor, NubContext, NubStick} from "@benev/nubs"
+import {Nub, NubActionEvent, NubEditor, NubContext, NubStick} from "@benev/nubs"
 
 import {Scene} from "@babylonjs/core/scene.js"
 import {Engine} from "@babylonjs/core/Engines/engine.js"
@@ -99,7 +99,7 @@ export function makeSpectatorCamera({
 				!target.closest("nub-stick")
 
 			const notWithinEditor =
-				!(target instanceof NubBindingsEditor) &&
+				!(target instanceof NubEditor) &&
 				!target.closest("nub-bindings-editor")
 
 			if (notAlreadyPointerLocked && notWithinStick && notWithinEditor)
