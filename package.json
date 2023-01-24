@@ -44,7 +44,7 @@
 		"es-module-shims": "^1.6.3",
 		"lit": "^2.6.1",
 		"sparrow-rtc": "^0.0.0-dev.6",
-		"xiome": "^0.0.38"
+		"xiome": "^0.0.40"
 	},
 	"devDependencies": {
 		"@rollup/plugin-node-resolve": "^15.0.1",
