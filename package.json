@@ -38,6 +38,7 @@
 		"@babylonjs/core": "^5.43.1",
 		"@babylonjs/loaders": "^5.43.1",
 		"@benev/nubs": "^0.0.7",
+		"@benev/toolbox": "^0.0.0-dev.4",
 		"@chasemoskal/magical": "^0.1.2",
 		"dbmage": "^0.0.0",
 		"es-module-shims": "^1.6.3",

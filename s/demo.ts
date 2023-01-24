@@ -9,12 +9,10 @@ import "@babylonjs/core/Culling/ray.js"
 import {makeRealmEcs} from "./realm/ecs.js"
 import {makeTheater} from "./utils/theater.js"
 import {spawnCube} from "./utils/spawn-cube.js"
-import {installNubs} from "./utils/install-nubs.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 
 void async function main() {
-	installNubs()
 	console.log("🔘 nubs ready")
 
 	const theater = makeTheater()
