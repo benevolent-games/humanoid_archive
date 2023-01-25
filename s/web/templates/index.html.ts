@@ -25,7 +25,7 @@ export default (context: WebsiteContext) => pageHtml({
 			">
 			<nub-real-keyboard></nub-real-keyboard>
 			<nub-real-mouse name=lookmouse></nub-real-mouse>
-			<nub-bindings-editor></nub-bindings-editor>
+			<nub-editor></nub-editor>
 			<div class="wrap-sticks">
 				<nub-stick name=movestick></nub-stick>
 				<nub-stick name=lookstick></nub-stick>
