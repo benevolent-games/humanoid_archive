@@ -7,22 +7,24 @@ import "@babylonjs/core/Lights/Shadows/index.js"
 import "@babylonjs/core/Culling/ray.js"
 
 import {makeRealmEcs} from "./realm/ecs.js"
-import {makeTheater} from "./utils/theater.js"
 import {spawnCube} from "./utils/spawn-cube.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
+import {registerElements} from "@chasemoskal/magical"
+import {getElements} from "@benev/toolbox/x/babylon/theater/get-elements.js"
+import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
+
+
 
 void async function main() {
-	console.log("🔘 nubs ready")
+	registerElements(getElements())
 
-	const theater = makeTheater()
-	window.addEventListener("resize", theater.onresize)
+	const benevTheather = document.querySelector<BenevTheater>("benev-theater")
+	const theater = benevTheather?.babylon!
 	
 	document.querySelector("[data-loading]")!.remove()
-	document.body.appendChild(theater.canvas)
-	document.body.appendChild(theater.framerateDisplay)
 	
-	theater.onresize()
+	// theater.onresize()
 	theater.start()
 	
 	await showCoolGlb({
