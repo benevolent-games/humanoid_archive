@@ -16,56 +16,11 @@ html, body, canvas {
 	overflow: hidden;
 }
 
-.framerate {
-	position: fixed;
-	color: whitesmoke;
-	font-size: 2rem;
-	top: 0;
-	right: 10px;
-	opacity: .7;
-	text-shadow: -2px 2px 3px black;
-}
-
-nub-context {
-	position: fixed;
-	inset: 0;
-	display: flex;
-	align-items: flex-end;
-}
-
-nub-stick {
-	opacity: .5;
-	height: auto;
-}
-
-nub-editor {
-	position: absolute;
-	inset: 0;
-	margin: auto;
-	margin-left: 3em;
-	margin-top: 3em;
-	width: 42em;
-	height: max-content;
-	max-width: 100%;
-	max-height: 100%;
-	border-radius: 0.5em;
-}
-
-.wrap-sticks {
-	display: flex;
-	width: 100%;
-	font-size: 0.7rem;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0 12vw;
-	margin: 1rem auto;
-}
-
 body[data-pointer-lock="true"] nub-context {
 	visibility: hidden;
 }
 
-benev-theater {
+benev-theater[view-mode="small"] {
 	margin: 15vh auto 0;
 }
 
