@@ -1,6 +1,5 @@
 
-import {V2} from "./v2.js"
-import * as v2 from "./v2.js"
+import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
 
 export function walker({
 		walk, sprint, isPressed, moveVector
