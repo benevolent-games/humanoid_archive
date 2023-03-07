@@ -33,7 +33,6 @@ export default ({
 
 				if (isDevMode) {
 					loadModule("importmap-shim", "${v("/importmap.json")}")
-					loadModule("module-shim", "/node_modules/@benev/toolbox/x/html.js")
 					loadModule("module-shim", "/demo.js")
 					loadModule("module", "/node_modules/es-module-shims/dist/es-module-shims.wasm.js")
 				}

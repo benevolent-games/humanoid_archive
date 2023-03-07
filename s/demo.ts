@@ -1,4 +1,6 @@
 
+import "@benev/toolbox/x/html.js"
+
 import "@babylonjs/loaders/glTF/2.0/Extensions/KHR_draco_mesh_compression.js"
 import "@babylonjs/core/Materials/standardMaterial.js"
 import "@babylonjs/core/Lights/Shadows/index.js"
@@ -16,6 +18,8 @@ void async function main() {
 	document.querySelector("[data-loading]")!.remove()
 
 	const theater = document.querySelector<BenevTheater>("benev-theater")!
+	await theater.updateComplete
+
 	const {
 		nubContext,
 		babylon: {
@@ -26,7 +30,7 @@ void async function main() {
 
 	if(!nubContext)
 		throw new Error("nubContext not found")
-	
+
 	await showCoolGlb({
 		scene,
 		engine,

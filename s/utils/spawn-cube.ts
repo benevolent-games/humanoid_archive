@@ -18,7 +18,7 @@ export async function spawnCube(
 
 	const box = MeshBuilder.CreateBox("box", {
 		size: 2,
-	})
+	}, scene)
 	box.position = position
 	box.material = material
 
