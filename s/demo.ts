@@ -66,6 +66,6 @@ void async function main() {
 	// setInterval(realm.executeSystems, 1000)
 	
 	console.log("🤖 humanoid ready")
-	resize()
+	resize(1.0)
 	start()
 }()
