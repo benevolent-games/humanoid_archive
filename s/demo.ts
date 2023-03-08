@@ -24,8 +24,11 @@ void async function main() {
 		nubContext,
 		babylon: {
 			renderLoop,
-			engine,scene,
-			resize, start}
+			engine,
+			scene,
+			resize,
+			start,
+		}
 	} = theater
 
 	if(!nubContext)
@@ -64,8 +67,8 @@ void async function main() {
 	const id = realm.addEntity({count: 0})
 	realm.executeSystems()
 	// setInterval(realm.executeSystems, 1000)
-	
+
 	console.log("🤖 humanoid ready")
-	resize(1.0)
+	resize(theater.settings.resolutionScale ?? 100)
 	start()
 }()
