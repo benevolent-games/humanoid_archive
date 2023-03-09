@@ -1,38 +1,21 @@
 
 import {Scene} from "@babylonjs/core/scene.js"
-import {Engine} from "@babylonjs/core/Engines/engine.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 
-import {NubContext} from "@benev/nubs"
 import {loadGlb} from "./babylon/load-glb.js"
-import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
 
-export async function showCoolGlb({url, scene, engine, renderLoop, nubContext}: {
+export async function showCoolGlb({url, scene}: {
 		url: string
-		nubContext: NubContext
-		scene: Scene 
-		engine: Engine
-		renderLoop: Set<() => void>
+		scene: Scene
 	}) {
-
-	makeSpectatorCamera({
-		walk: 0.7,
-		engine,
-		scene,
-		renderLoop,
-		nubContext,
-		lookSensitivity: {
-			stick: 1/50,
-			mouse: 1/1_000,
-		},
-	})
 
 	const assets = await loadGlb(scene, url)
 	const meshes = new Set(assets.meshes)
+	const mesh_array = [...meshes]
 
-	;[...meshes]
-		.filter(m => m.name.startsWith("collision"))
+	mesh_array
+		.filter(m => m.name.includes("collision"))
 		.forEach(m => {
 			m.dispose()
 			meshes.delete(m)
@@ -42,4 +25,6 @@ export async function showCoolGlb({url, scene, engine, renderLoop, nubContext}: 
 		if (material instanceof PBRMaterial)
 			material.ambientColor = new Color3(1, 1, 1)
 	}
+
+	return assets
 }
