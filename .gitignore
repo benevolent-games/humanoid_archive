@@ -1,5 +1,6 @@
 
 /x
+/assets/temp
 /node_modules
 /*.tgz
 /yarn.lock
