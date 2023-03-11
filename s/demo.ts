@@ -94,6 +94,11 @@ void async function main() {
 		},
 	})
 
+	{
+		camera.minZ = 1
+		camera.maxZ = 500
+	}
+
 
 	{
 		const direction = new Vector3(0.8, 0.6, -0.9)
@@ -105,56 +110,63 @@ void async function main() {
 	switch (quality) {
 		case "low":
 			theater.settings.resolutionScale = 50
-			break;
+			break
 
 		case "medium":
-			theater.settings.resolutionScale = 60
+			// {
+			// 	shadow_generator.autoCalcDepthBounds = true
+			// 	shadow_generator.bias = 0.01
+			// 	shadow_generator.normalBias = 0
+			// }
+
 			{
-				shadow_generator.autoCalcDepthBounds = true
-				shadow_generator.bias = 0.01
-				shadow_generator.normalBias = 0
-				camera.minZ = 1
-				camera.maxZ = 500
-			}
-		
-			{
-				const pipeline = new DefaultRenderingPipeline("default", true, scene, [camera])
-		
+				const pipeline = new DefaultRenderingPipeline("default", false, scene, [camera])
+
 				pipeline.fxaaEnabled = true
-				pipeline.samples = 2
-				
+				pipeline.samples = 4
+
 				pipeline.bloomEnabled = true
 				pipeline.bloomThreshold = 0.6;
-				pipeline.bloomWeight = 0.1;
+				pipeline.bloomWeight = 0.3;
 				pipeline.bloomKernel = 32;
 				pipeline.bloomScale = 0.2;
-		
+
 				pipeline.depthOfFieldEnabled = true
 				pipeline.depthOfFieldBlurLevel = DepthOfFieldEffectBlurLevel.Low
 				pipeline.depthOfField.focusDistance = 100 * 1000
 				pipeline.depthOfField.focalLength = 50
 				pipeline.depthOfField.fStop = 1.4
-		
+
 				// pipeline.imageProcessingEnabled = true
 				// pipeline.imageProcessing.vignetteEnabled = true
 				// pipeline.imageProcessing.vignetteWeight = 0.75
-		
 				// pipeline.imageProcessing.toneMappingEnabled = true
 				// pipeline.imageProcessing.toneMappingType = TonemappingOperator.Photographic
-		
+
 				// pipeline.grainEnabled = true
 				// pipeline.grain.intensity = 5
 				// pipeline.grain.animated = true
 			}
-			break;
+
+			// {
+			// 	const ao_settings = 0.75
+			// 	// const ao_settings = {ssaoRatio: 0.75, blurRatio: 0.75, combineRatio: 1}
+			// 	const ao = new SSAO2RenderingPipeline("ssao", scene, ao_settings, [camera])
+			// 	ao.radius = 10
+			// 	ao.totalStrength = 0.5
+			// 	ao.base = 0.15
+			// 	ao.samples = 4
+			// 	ao.maxZ = 600
+			// 	ao.minZAspect = 0.5
+			// 	// SSAOPipeline.expensiveBlur = true;
+			// }
+			break
 
 		case "high":
 			{
 				shadow_generator.autoCalcDepthBounds = true
 				shadow_generator.bias = 0.01
 				shadow_generator.normalBias = 0
-				camera.minZ = 1
-				camera.maxZ = 500
 			}
 		
 			{
@@ -199,7 +211,7 @@ void async function main() {
 				ao.minZAspect = 0.5
 				// SSAOPipeline.expensiveBlur = true;
 			}
-			break;
+			break
 	}
 
 	
