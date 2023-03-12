@@ -15,7 +15,7 @@
 		"build": "run-s clean && run-p compile importly && run-s test bundle minify",
 		"hack-babylon": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
 		"clean": "rimraf x && mkdirp x",
-		"links": "run-s link-s link-modules",
+		"links": "run-s link-s link-modules link-assets",
 		"link-s": "ln -s $(realpath s) x/s",
 		"link-modules": "ln -s $(realpath node_modules) x/node_modules",
 		"link-assets": "ln -s $(realpath assets) x/assets",
