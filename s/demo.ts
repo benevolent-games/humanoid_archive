@@ -148,18 +148,18 @@ void async function main() {
 				// pipeline.grain.animated = true
 			}
 
-			// {
-			// 	const ao_settings = 0.75
-			// 	// const ao_settings = {ssaoRatio: 0.75, blurRatio: 0.75, combineRatio: 1}
-			// 	const ao = new SSAO2RenderingPipeline("ssao", scene, ao_settings, [camera])
-			// 	ao.radius = 10
-			// 	ao.totalStrength = 0.5
-			// 	ao.base = 0.15
-			// 	ao.samples = 4
-			// 	ao.maxZ = 600
-			// 	ao.minZAspect = 0.5
-			// 	// SSAOPipeline.expensiveBlur = true;
-			// }
+			{
+				const ao_settings = 0.5
+				// const ao_settings = {ssaoRatio: 0.75, blurRatio: 0.75, combineRatio: 1}
+				const ao = new SSAO2RenderingPipeline("ssao", scene, ao_settings, [camera])
+				ao.radius = 5
+				ao.totalStrength = 0.5
+				ao.base = 0.15
+				ao.maxZ = 600
+				ao.samples = 4
+				ao.minZAspect = 0.5
+				// ao.expensiveBlur = false;
+			}
 			break
 
 		case "high":
