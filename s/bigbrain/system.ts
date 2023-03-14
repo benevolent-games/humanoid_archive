@@ -1,5 +1,5 @@
 
-import {Rec, System, Systematizer, Systems, System_Setup, System_Spec} from "./types.js"
+import {Rec, System, Systematizer, System_Spec} from "./types.js"
 
 export function system<State extends Rec>(name: string) {
 	return <Keys extends keyof State>(
