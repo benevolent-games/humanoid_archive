@@ -9,25 +9,57 @@ import {systems} from "./system.js"
 
 type GameState = {
 	count: number
-	networked: boolean
+	position: [number, number, number]
+	velocity: [number, number, number]
+	interpolate: number
 }
 
 const meta = make_babylonjs_meta()
 
-system<GameState>("counting")({
-	selector: ["count", "networked"],
-	frequency: 1000,
+simulator<GameState>("host counting")({
+	frequency: 0,
+	selector: ["count"],
 	behaviors: [
-
-		["the client increases the count", ({state, net}) => {
-			for (const message of net.messages_from_client)
+		["count increases", ({state, net}) => {
+			for (const message of net.messages_from_client) {
 				if (message === "increment")
-					state.count += 1
+					state.count += 11
+			}
+		}],
+	],
+})
 
-			if (net.client)
-				net.send_message_to_host("increment")
+replicator<GameState>("client counting")({
+	frequency: 1000,
+	selector: ["count"],
+	behaviors: [
+		["count increases", ({state, net}) => {
+			net.send_message_to_host("increment")
+		}],
+	],
+})
 
-			meta.render_count(state.count)
+simulator<GameState>("physics")({
+	frequency: 0,
+	selector: ["position", "veocity"],
+	behaviors: [
+		["velocity moves objects", ({state}) => {
+			state.position = vector3.add(state.position, state.velocity)
+		}],
+	],
+})
+
+replicator<GameState>("client interpolation")({
+	frequency: 0,
+	selector: ["position", "interpolate"],
+	behaviors: [
+		["interpolate position", ({id, state, meta}) => {
+			const current_rendered_position = meta.getPosition(id)
+			const interpolated_position = vector3.interpolate(
+				current_rendered_position,
+				state.position,
+			)
+			meta.setPosition(interpolated_position)
 		}],
 	],
 })
