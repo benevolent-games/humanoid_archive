@@ -5,7 +5,7 @@ import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 
 import {loadGlb} from "./babylon/load-glb.js"
 
-export async function showCoolGlb({url, scene}: {
+export async function loadMapGlb({url, scene}: {
 		url: string
 		scene: Scene
 	}) {
@@ -13,6 +13,10 @@ export async function showCoolGlb({url, scene}: {
 	const assets = await loadGlb(scene, url)
 	const meshes = new Set(assets.meshes)
 	const mesh_array = [...meshes]
+
+	const collision_meshes = mesh_array.filter(
+		m => m.name.startsWith("collision")
+	)
 
 	mesh_array
 		.filter(m => m.name.includes("collision"))
@@ -26,5 +30,5 @@ export async function showCoolGlb({url, scene}: {
 			material.ambientColor = new Color3(1, 1, 1)
 	}
 
-	return assets
+	return {assets, collision_meshes}
 }

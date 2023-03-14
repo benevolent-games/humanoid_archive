@@ -4,8 +4,9 @@ import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
+import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 
-export async function spawnCube(
+export async function spawnPhysicsCube(
 		scene: Scene,
 		position: Vector3
 	) {
@@ -17,10 +18,15 @@ export async function spawnCube(
 	material.metallic = 0.5
 
 	const box = MeshBuilder.CreateBox("box", {
-		size: 2,
+		size: 1,
 	}, scene)
 	box.position = position
 	box.material = material
+
+	box.physicsImpostor = new PhysicsImpostor(box, PhysicsImpostor.BoxImpostor, {
+		mass: 3,
+		restitution: 0.5
+	})
 
 	return box
 }
