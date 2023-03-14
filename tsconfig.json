@@ -4,6 +4,7 @@
 		"outDir": "x",
 		"target": "es2021",
 		"lib": ["es2021", "dom"],
+		"types": ["ammojs-typed/ammo/ambient/ammo.js"],
 		"module": "esnext",
 		"moduleResolution": "node",
 		"experimentalDecorators": true,

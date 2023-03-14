@@ -42,6 +42,7 @@
 		"@benev/nubs": "^0.2.3",
 		"@benev/toolbox": "^0.0.3",
 		"@chasemoskal/magical": "^0.1.3",
+		"ammojs-typed": "^1.0.6",
 		"dbmage": "^0.0.0",
 		"es-module-shims": "^1.7.0",
 		"lit": "^2.6.1",
@@ -50,7 +51,6 @@
 	},
 	"devDependencies": {
 		"@rollup/plugin-node-resolve": "^15.0.1",
-		"ammojs-typed": "^1.0.6",
 		"chokidar": "^3.5.3",
 		"chokidar-cli": "^3.0.0",
 		"cynic": "^0.2.0",

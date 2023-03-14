@@ -17,6 +17,7 @@ import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeli
 import {makeRealmEcs} from "./realm/ecs.js"
 import {spawnCube} from "./utils/spawn-cube.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
+import {setupPhysics} from "./physics/setup-physics.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
@@ -26,7 +27,6 @@ import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/index.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
-import {DirectionalLight} from "@babylonjs/core/Lights/directionalLight.js"
 import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 
 void async function main() {
@@ -49,6 +49,7 @@ void async function main() {
 	if(!nubContext)
 		throw new Error("nubContext not found")
 
+	await setupPhysics(scene)
 
 	const {hash} = window.location
 	const quality = (

@@ -20,6 +20,7 @@ export default ({
 <head>
 	${headBasicsHtml({...options, v, title: "humanoid"})}
 	${html`
+			<script defer src="/assets/ammo/ammo.wasm.js"></script>
 			<script>
 				const isDevMode = new URLSearchParams(window.location.search).has("dev")
 
