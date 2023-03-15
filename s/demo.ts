@@ -19,7 +19,7 @@ import {makeRealmEcs} from "./realm/ecs.js"
 import {loadMapGlb} from "./utils/load-map-glb.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 
-import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
+import {Matrix, Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
@@ -31,6 +31,7 @@ import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/index.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -69,8 +70,8 @@ void async function main() {
 	SceneLoader.ShowLoadingScreen = false
 
 	const lighting_assets = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`})
-	const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/fnndwk4lk3doy37/skyfactory.glb`})
-	// const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `/assets/temp/humanoidconcept7.glb`})
+	// const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/fnndwk4lk3doy37/skyfactory.glb`})
+	const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `/assets/temp/humanoidconcept7.glb`})
 
 	const [light] = lighting_assets.assets.lights
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
@@ -234,9 +235,12 @@ void async function main() {
 	NubEffectEvent.target(window)
     .listen(e => {
 			if (e.detail.effect === "secondary") {
-        const {x, y, z} = camera.getFrontPosition(8)
-				const position = new Vector3(x, y, z)
-				spawnPhysicsCube(scene, position)
+
+				const ray = scene.pick(scene.pointerX, scene.pointerY)
+				if (ray.pickedPoint) {
+					const {x, y, z} = ray.pickedPoint
+					spawnPhysicsCube(scene, new Vector3(x+8, y-5, z-5))
+				}
 			}
     })
 	

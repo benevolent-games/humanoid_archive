@@ -20,13 +20,14 @@ export async function spawnPhysicsCube(
 	const box = MeshBuilder.CreateBox("box", {
 		size: 1,
 	}, scene)
-	box.position = position
-	box.material = material
 
 	box.physicsImpostor = new PhysicsImpostor(box, PhysicsImpostor.BoxImpostor, {
 		mass: 3,
 		restitution: 0.5
 	})
+
+	box.position = position
+	box.material = material
 
 	return box
 }
