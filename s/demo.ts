@@ -70,8 +70,8 @@ void async function main() {
 	SceneLoader.ShowLoadingScreen = false
 
 	const lighting_assets = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`})
-	// const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/fnndwk4lk3doy37/skyfactory.glb`})
-	const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `/assets/temp/humanoidconcept7.glb`})
+	const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/fnndwk4lk3doy37/skyfactory.glb`})
+	// const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `/assets/temp/humanoidconcept7.glb`})
 
 	const [light] = lighting_assets.assets.lights
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
@@ -233,13 +233,13 @@ void async function main() {
 	}
 
 	NubEffectEvent.target(window)
-    .listen(e => {
+		.listen(e => {
 			if (e.detail.effect === "secondary") {
-
-				const ray = scene.pick(scene.pointerX, scene.pointerY)
+				const centerX = engine.getRenderWidth() / 2
+  			const centerY = engine.getRenderHeight() / 2
+				const ray = scene.pick(centerX, centerY)
 				if (ray.pickedPoint) {
-					const {x, y, z} = ray.pickedPoint
-					spawnPhysicsCube(scene, new Vector3(x+8, y-5, z-5))
+					spawnPhysicsCube(scene, ray.pickedPoint)
 				}
 			}
     })
