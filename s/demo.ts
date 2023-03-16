@@ -234,13 +234,18 @@ void async function main() {
 
 	NubEffectEvent.target(window)
 		.listen(e => {
-			if (e.detail.effect === "secondary") {
-				const centerX = engine.getRenderWidth() / 2
-  			const centerY = engine.getRenderHeight() / 2
-				const ray = scene.pick(centerX, centerY)
-				if (ray.pickedPoint) {
-					spawnPhysicsCube(scene, ray.pickedPoint)
-				}
+			const centerX = engine.getRenderWidth() / 2
+			const centerY = engine.getRenderHeight() / 2
+			const ray = scene.pick(centerX, centerY)
+
+			const isLeftClick = e.detail.effect === "primary"
+			const isRightClick = e.detail.effect === "secondary"
+
+			if (isRightClick && ray.pickedPoint) {
+				spawnPhysicsCube(scene, ray.pickedPoint)
+			}
+			else if (isLeftClick && ray.pickedMesh?.name === "box") {
+				ray.pickedMesh.applyImpulse(new Vector3(0, 20, 0), ray.pickedPoint!);
 			}
     })
 	

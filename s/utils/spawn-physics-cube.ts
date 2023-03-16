@@ -18,7 +18,7 @@ export async function spawnPhysicsCube(
 	material.metallic = 0.5
 
 	const box = MeshBuilder.CreateBox("box", {
-		size: 1,
+		size: 1.5,
 	}, scene)
 
 	box.physicsImpostor = new PhysicsImpostor(box, PhysicsImpostor.BoxImpostor, {
