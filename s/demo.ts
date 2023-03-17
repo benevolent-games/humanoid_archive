@@ -30,10 +30,12 @@ import {loadGlb} from "./utils/babylon/load-glb.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
-import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
+import {makeRobotCapsule} from "./utils/make-robot-capsule.js"
 import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
+import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
+
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -286,6 +288,8 @@ void async function main() {
 				ray.pickedMesh.applyImpulse(new Vector3(0, 5, 0), ray.pickedPoint!);
 			}
 		})
+
+	makeRobotCapsule(scene)
 
 	const realm = makeRealmEcs<{
 		count: number
