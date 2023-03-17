@@ -19,7 +19,7 @@ import {makeRealmEcs} from "./realm/ecs.js"
 import {loadMapGlb} from "./utils/load-map-glb.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 
-import {Matrix, Vector3} from "@babylonjs/core/Maths/math.vector.js"
+import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
@@ -27,11 +27,12 @@ import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-cam
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
 import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
+import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/index.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
-import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
+
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -232,6 +233,16 @@ void async function main() {
 			break
 	}
 
+	const boxMaterial = (() => {
+		const material = new PBRMaterial("mat", scene)
+		material.albedoColor = new Color3(1, 0, 0)
+		material.ambientColor = new Color3(1, 1, 1)
+		material.roughness = 0.5
+		material.metallic = 0.5
+
+		return material
+	})()
+
 	NubEffectEvent.target(window)
 		.listen(e => {
 			const centerX = engine.getRenderWidth() / 2
@@ -242,13 +253,15 @@ void async function main() {
 			const isRightClick = e.detail.effect === "secondary"
 
 			if (isRightClick && ray.pickedPoint) {
-				spawnPhysicsCube(scene, ray.pickedPoint)
+				spawnPhysicsCube(scene, ray.pickedPoint, boxMaterial)
 			}
 			else if (isLeftClick && ray.pickedMesh?.name === "box") {
 				ray.pickedMesh.applyImpulse(new Vector3(0, 20, 0), ray.pickedPoint!);
 			}
-    })
-	
+		})
+
+
+
 	const realm = makeRealmEcs<{
 		count: number
 	}>(({system}) => ({
@@ -263,7 +276,7 @@ void async function main() {
 			}),
 		]
 	}))
-	
+
 	const id = realm.addEntity({count: 0})
 	realm.executeSystems()
 	// setInterval(realm.executeSystems, 1000)
