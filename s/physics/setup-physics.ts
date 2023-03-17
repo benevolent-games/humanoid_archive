@@ -6,12 +6,12 @@ import {Vector3} from "@babylonjs/core/Maths/math.js"
 import {AmmoJSPlugin} from "@babylonjs/core/Physics/Plugins/ammoJSPlugin.js"
 
 export async function setupPhysics(
-		scene: Scene
+		scene: Scene,
+		gravity: Vector3
 	) {
 	
 	const ammo = await Ammo()
 	const physics = new AmmoJSPlugin(true, ammo)
-	const gravity = new Vector3(0, -9.81, 0)
 	scene.enablePhysics(gravity, physics)
 
 }

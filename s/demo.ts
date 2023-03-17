@@ -54,7 +54,8 @@ void async function main() {
 	if(!nubContext)
 		throw new Error("nubContext not found")
 
-	await setupPhysics(scene)
+	const gravity = new Vector3(0, -9.81, 0)
+	await setupPhysics(scene, gravity)
 
 	const {hash} = window.location
 	const quality = (
@@ -88,19 +89,20 @@ void async function main() {
 		m.receiveShadows = true
 		shadow_generator.addShadowCaster(m)
 		m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.MeshImpostor, {
-      mass: 0,
-      restitution: 0.3,
-    })
+			mass: 0,
+			friction: 0.5,
+			restitution: 0.3,
+		})
 	}
 
-  for (const m of collision_meshes) {
-    m.isVisible = false
-    m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.CylinderImpostor, {
-      mass: 0,
-      friction: 0.4,
-      restitution: 0.5
-    }, scene)
-  }
+	for (const m of collision_meshes) {
+		m.isVisible = false
+		m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.MeshImpostor, {
+			mass: 0,
+			friction: 0.4,
+			restitution: 0.5
+		}, scene)
+	}
 
 	const camera = makeSpectatorCamera({
 		scene,
@@ -252,11 +254,12 @@ void async function main() {
 			const isLeftClick = e.detail.effect === "primary"
 			const isRightClick = e.detail.effect === "secondary"
 
-			if (isRightClick && ray.pickedPoint) {
-				spawnPhysicsCube(scene, ray.pickedPoint, boxMaterial)
+			if (isRightClick && ray.pickedPoint && ray.pickedMesh?.name !== "box") {
+				const normal = ray.getNormal(true)!
+				spawnPhysicsCube(scene, normal, ray.pickedPoint, boxMaterial)
 			}
 			else if (isLeftClick && ray.pickedMesh?.name === "box") {
-				ray.pickedMesh.applyImpulse(new Vector3(0, 20, 0), ray.pickedPoint!);
+				ray.pickedMesh.applyImpulse(new Vector3(0, 5, 0), ray.pickedPoint!);
 			}
 		})
 
@@ -265,7 +268,7 @@ void async function main() {
 	const realm = makeRealmEcs<{
 		count: number
 	}>(({system}) => ({
-		
+
 		systems: [
 			system()
 			.label("counter")
