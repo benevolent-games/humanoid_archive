@@ -12,22 +12,22 @@ import "@babylonjs/core/Culling/ray.js"
 import "@babylonjs/core/PostProcesses/index.js"
 import "@babylonjs/core/Rendering/index.js"
 
+import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
+import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
+import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
+import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
+import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
+import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/cascadedShadowGenerator.js"
 import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline.js"
+import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
+
+import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
+import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
+import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/flycam/integrate_nubs_to_control_fly_camera.js"
 
 import {makeRealmEcs} from "./realm/ecs.js"
 import {spawnCube} from "./utils/spawn-cube.js"
 import {showCoolGlb} from "./utils/show-cool-glb.js"
-import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
-import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
-import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
-import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
-
-import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
-import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/index.js"
-import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
-import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
-import {DirectionalLight} from "@babylonjs/core/Lights/directionalLight.js"
-import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -82,23 +82,29 @@ void async function main() {
 		shadow_generator.addShadowCaster(m)
 	}
 
-	const camera = makeSpectatorCamera({
+	const fly = make_fly_camera({
 		scene,
-		engine,
-		nubContext,
-		renderLoop,
-		walk: 0.5,
-		lookSensitivity: {
-			stick: 1/50,
-			mouse: 1/1_000,
-		},
+		position: [0, 0, 0],
 	})
 
-	{
-		camera.minZ = 1
-		camera.maxZ = 500
-	}
+	const {camera} = fly
+	camera.minZ = 1
+	camera.maxZ = 500
 
+	const fly_integration = integrate_nubs_to_control_fly_camera({
+		fly,
+		nub_context: nubContext,
+		render_loop: renderLoop,
+		look_sensitivity: {
+			pointer: 1 / 1_000,
+			stick: 1 / 50,
+		},
+		speeds: {
+			walk: 1,
+			creep: 0.3,
+			sprint: 3,
+		},
+	})
 
 	{
 		const direction = new Vector3(0.8, 0.6, -0.9)
