@@ -1,7 +1,8 @@
+import {V3} from "@benev/toolbox/x/utils/v3.js"
+
 import {loadGlb} from "./babylon/load-glb.js"
 import {Scene} from "@babylonjs/core/scene.js"
-import {Vector3} from "@babylonjs/core/Maths/math.js"
-import {V3} from "@benev/toolbox/x/utils/v3.js"
+import {Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 export class RobotPuppet {
@@ -18,9 +19,21 @@ export class RobotPuppet {
 		await loadGlb(this.#scene, `../../assets/temp/spherebot3.glb`)
 	}
 
-	setVerticalAim(y: number) {}
+	setVerticalAim(y: number) {
+		if (this.upper) {
+			this.upper.rotationQuaternion = Quaternion.RotationYawPitchRoll(
+				0, -y, 0,
+			)
+		}
+	}
 
-	setHorizontalAim(x: number) {}
+	setHorizontalAim(x: number) {
+		if (this.upper) {
+			this.upper.rotationQuaternion = Quaternion.RotationYawPitchRoll(
+				x, 0, 0,
+			)
+		}
+	}
 
 	setPosition(vector: V3) {
 		const parent = this.root as TransformNode
