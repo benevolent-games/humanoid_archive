@@ -39,8 +39,8 @@
 	"dependencies": {
 		"@babylonjs/core": "^5.51.0",
 		"@babylonjs/loaders": "^5.51.0",
-		"@benev/nubs": "^0.2.3",
-		"@benev/toolbox": "^0.1.0",
+		"@benev/nubs": "^0.2.4",
+		"@benev/toolbox": "^0.3.1",
 		"@chasemoskal/magical": "^0.1.3",
 		"dbmage": "^0.0.1",
 		"es-module-shims": "^1.7.0",

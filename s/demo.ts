@@ -46,10 +46,6 @@ void async function main() {
 		}
 	} = theater
 
-	if(!nubContext)
-		throw new Error("nubContext not found")
-
-
 	const {hash} = window.location
 	const quality = (
 		hash.startsWith("#quality=")
@@ -82,29 +78,37 @@ void async function main() {
 		shadow_generator.addShadowCaster(m)
 	}
 
-	const fly = make_fly_camera({
-		scene,
-		position: [0, 0, 0],
+	const fly = integrate_nubs_to_control_fly_camera({
+		nub_context: nubContext!,
+		render_loop: renderLoop,
+
+		fly: make_fly_camera({
+			scene,
+			position: [0, 0, 0],
+		}),
+
+		speeds_for_movement: {
+			slow: 1 / 25,
+			base: 1 / 5,
+			fast: 1,
+		},
+	
+		speeds_for_looking_with_keys_and_stick: {
+			slow: 1 / 200,
+			base: 1 / 25,
+			fast: 1 / 5,
+		},
+	
+		look_sensitivity: {
+			stick: 1 / 100,
+			pointer: 1 / 200,
+		},
 	})
 
 	const {camera} = fly
 	camera.minZ = 1
 	camera.maxZ = 500
-
-	const fly_integration = integrate_nubs_to_control_fly_camera({
-		fly,
-		nub_context: nubContext,
-		render_loop: renderLoop,
-		look_sensitivity: {
-			pointer: 1 / 1_000,
-			stick: 1 / 50,
-		},
-		speeds: {
-			walk: 1,
-			creep: 0.3,
-			sprint: 3,
-		},
-	})
+	camera.fov = 1.2
 
 	{
 		const direction = new Vector3(0.8, 0.6, -0.9)
