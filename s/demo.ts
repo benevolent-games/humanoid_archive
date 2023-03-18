@@ -16,20 +16,18 @@ import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeli
 
 import {NubEffectEvent} from "@benev/nubs"
 import {makeRealmEcs} from "./realm/ecs.js"
-import {loadMapGlb} from "./utils/load-map-glb.js"
+import {loadGlb} from "./utils/babylon/load-glb.js"
 import {setupPhysics} from "./physics/setup-physics.js"
+import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
+import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
+import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
+import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
 
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
-import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
-import {makeSpectatorCamera} from "@benev/toolbox/x/babylon/camera/spectator-camera.js"
-
-import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
-import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
 import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
-import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/index.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
 
@@ -71,45 +69,18 @@ void async function main() {
 
 	SceneLoader.ShowLoadingScreen = false
 
-	const lighting_assets = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`})
-	const {
-		assets: factory_assets,
-		collision_meshes,
-		noCollision_meshes
-	} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`})
-	// const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `/assets/temp/humanoidconcept7.glb`})
+	const lighting_assets = await loadGlb(scene, `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`)
 
-	const [light] = lighting_assets.assets.lights
+	const [light] = lighting_assets.lights
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
 	const shadow_map = shadow_generator.getShadowMap()
 
-	const regular_meshes = (
-		factory_assets
-			.meshes
-			.filter(m => m instanceof Mesh)
-	)
-
-	for (const m of [...regular_meshes, ...noCollision_meshes]) {
-		m.receiveShadows = true
-		shadow_generator.addShadowCaster(m)
-	}
-
-	for (const m of regular_meshes) {
-		m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.MeshImpostor, {
-			mass: 0,
-			friction: 0.5,
-			restitution: 0.3,
-		})
-	}
-
-	for (const m of collision_meshes) {
-		m.isVisible = false
-		m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.MeshImpostor, {
-			mass: 0,
-			friction: 0.4,
-			restitution: 0.5
-		}, scene)
-	}
+	// await load_level_and_setup_meshes_for_collision({scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator})
+	await load_level_and_setup_meshes_for_collision({
+		scene,
+		shadow_generator,
+		url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`, 
+	})
 
 	const camera = makeSpectatorCamera({
 		scene,
