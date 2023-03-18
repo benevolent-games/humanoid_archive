@@ -1,4 +1,4 @@
-import {V3} from "@benev/toolbox/x/utils/v3.js"
+import {V3, v3} from "@benev/toolbox/x/utils/v3.js"
 
 import {loadGlb} from "./babylon/load-glb.js"
 import {Scene} from "@babylonjs/core/scene.js"
@@ -7,12 +7,15 @@ import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 export class RobotPuppet {
 	#scene: Scene;
-	#position: V3 = [0,0,0]
+	position: V3 = v3.zero()
+	isLoaded: Promise<void>
 
 	constructor({scene, position}: {scene: Scene, position: V3}) {
 		this.#scene = scene
-		this.#position = position
-		this.#loadGlb()
+		this.position = position
+		this.isLoaded = this.#loadGlb().then(() => {
+			this.setPosition(position)
+		})
 	}
 
 	async #loadGlb() {

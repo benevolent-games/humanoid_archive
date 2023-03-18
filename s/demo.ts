@@ -35,6 +35,7 @@ import {integrate_nubs_to_control_character_capsule} from "./character-capsule/i
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
+import {RobotPuppet} from "./utils/robot-puppet.js"
 
 
 void async function main() {
@@ -289,7 +290,9 @@ void async function main() {
 			}
 		})
 
-	makeRobotCapsule(scene)
+	const {root, position} = new RobotPuppet({scene, position: [0, 0, 0]})
+
+	makeRobotCapsule(scene, root, position)
 
 	const realm = makeRealmEcs<{
 		count: number
