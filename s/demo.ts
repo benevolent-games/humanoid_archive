@@ -25,9 +25,13 @@ import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
 import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/flycam/integrate_nubs_to_control_fly_camera.js"
 
+import {NubEffectEvent} from "@benev/nubs"
 import {makeRealmEcs} from "./realm/ecs.js"
-import {spawnCube} from "./utils/spawn-cube.js"
-import {showCoolGlb} from "./utils/show-cool-glb.js"
+import {setupPhysics} from "./physics/setup-physics.js"
+import {loadGlb} from "./utils/babylon/load-glb.js"
+import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
+import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
+import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -46,6 +50,9 @@ void async function main() {
 		}
 	} = theater
 
+	const gravity = new Vector3(0, -9.81, 0)
+	await setupPhysics(scene, gravity)
+
 	const {hash} = window.location
 	const quality = (
 		hash.startsWith("#quality=")
@@ -60,23 +67,18 @@ void async function main() {
 
 	SceneLoader.ShowLoadingScreen = false
 
-	const lighting_assets = await showCoolGlb({scene, url: `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`})
-	const factory_assets = await showCoolGlb({scene, url: `https://dl.dropbox.com/s/fnndwk4lk3doy37/skyfactory.glb`})
+	const lighting_assets = await loadGlb(scene, `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`)
 
 	const [light] = lighting_assets.lights
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
 	const shadow_map = shadow_generator.getShadowMap()
 
-	const true_factory_meshes = (
-		factory_assets
-			.meshes
-			.filter(m => m instanceof Mesh)
-	)
-
-	for (const m of true_factory_meshes) {
-		m.receiveShadows = true
-		shadow_generator.addShadowCaster(m)
-	}
+	// await load_level_and_setup_meshes_for_collision({scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator})
+	await load_level_and_setup_meshes_for_collision({
+		scene,
+		shadow_generator,
+		url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`, 
+	})
 
 	const fly = integrate_nubs_to_control_fly_camera({
 		nub_context: nubContext!,
@@ -224,11 +226,38 @@ void async function main() {
 			break
 	}
 
-	
+	const boxMaterial = (() => {
+		const material = new PBRMaterial("mat", scene)
+		material.albedoColor = new Color3(1, 0, 0)
+		material.ambientColor = new Color3(1, 1, 1)
+		material.roughness = 0.5
+		material.metallic = 0.5
+
+		return material
+	})()
+
+	NubEffectEvent.target(window)
+		.listen(e => {
+			const centerX = engine.getRenderWidth() / 2
+			const centerY = engine.getRenderHeight() / 2
+			const ray = scene.pick(centerX, centerY)
+
+			const isLeftClick = e.detail.effect === "primary"
+			const isRightClick = e.detail.effect === "secondary"
+
+			if (isRightClick && ray.pickedPoint && ray.pickedMesh?.name !== "box") {
+				const normal = ray.getNormal(true)!
+				spawnPhysicsCube(scene, normal, ray.pickedPoint, boxMaterial)
+			}
+			else if (isLeftClick && ray.pickedMesh?.name === "box") {
+				ray.pickedMesh.applyImpulse(new Vector3(0, 5, 0), ray.pickedPoint!);
+			}
+		})
+
 	const realm = makeRealmEcs<{
 		count: number
 	}>(({system}) => ({
-		
+
 		systems: [
 			system()
 			.label("counter")
@@ -239,7 +268,7 @@ void async function main() {
 			}),
 		]
 	}))
-	
+
 	const id = realm.addEntity({count: 0})
 	realm.executeSystems()
 	// setInterval(realm.executeSystems, 1000)
