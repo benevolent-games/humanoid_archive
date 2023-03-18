@@ -72,22 +72,29 @@ void async function main() {
 	SceneLoader.ShowLoadingScreen = false
 
 	const lighting_assets = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/f2b7lyw6vgpp9bl/lighting2.babylon`})
-	const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/fnndwk4lk3doy37/skyfactory.glb`})
+	const {
+		assets: factory_assets,
+		collision_meshes,
+		noCollision_meshes
+	} = await loadMapGlb({scene, url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`})
 	// const {assets: factory_assets, collision_meshes} = await loadMapGlb({scene, url: `/assets/temp/humanoidconcept7.glb`})
 
 	const [light] = lighting_assets.assets.lights
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
 	const shadow_map = shadow_generator.getShadowMap()
 
-	const true_factory_meshes = (
+	const regular_meshes = (
 		factory_assets
 			.meshes
 			.filter(m => m instanceof Mesh)
 	)
 
-	for (const m of true_factory_meshes) {
+	for (const m of [...regular_meshes, ...noCollision_meshes]) {
 		m.receiveShadows = true
 		shadow_generator.addShadowCaster(m)
+	}
+
+	for (const m of regular_meshes) {
 		m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.MeshImpostor, {
 			mass: 0,
 			friction: 0.5,

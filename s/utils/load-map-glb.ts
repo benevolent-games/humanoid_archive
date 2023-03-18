@@ -18,6 +18,10 @@ export async function loadMapGlb({url, scene}: {
 		m => m.name.startsWith("collision")
 	)
 
+	const noCollision_meshes = mesh_array.filter(
+		m => m.name.startsWith("nocollision")
+	)
+
 	mesh_array
 		.filter(m => m.name.includes("collision"))
 		.forEach(m => {
@@ -30,5 +34,5 @@ export async function loadMapGlb({url, scene}: {
 			material.ambientColor = new Color3(1, 1, 1)
 	}
 
-	return {assets, collision_meshes}
+	return {assets, collision_meshes, noCollision_meshes}
 }
