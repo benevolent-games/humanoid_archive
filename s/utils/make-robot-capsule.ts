@@ -15,7 +15,7 @@ export function makeRobotCapsule(scene: Scene, root?: Nullable<Node> | undefined
 	material.alpha = 0.5
 
 	const capsule = MeshBuilder.CreateCapsule("robot-capsule", {
-		radius: 0.8,
+		radius: 0.7,
 		height: 3,
 	}, scene)
 
@@ -26,11 +26,8 @@ export function makeRobotCapsule(scene: Scene, root?: Nullable<Node> | undefined
 
 	capsule.material = material
 	
-	if (root) {
-		capsule.setParent(root)
-		if (position)
-			capsule.position = new Vector3(...position)
-	}
+	if(root) {root.parent = capsule}
+	if (position) {capsule.position = new Vector3(...position)}
 
 	return capsule
 }

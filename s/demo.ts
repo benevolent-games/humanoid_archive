@@ -290,9 +290,9 @@ void async function main() {
 			}
 		})
 
-	const {root, position} = new RobotPuppet({scene, position: [0, 0, 0]})
-
-	makeRobotCapsule(scene, root, position)
+	const robot_puppet = new RobotPuppet({scene, position: [10,10,0]})
+	await robot_puppet.isLoaded
+	makeRobotCapsule(scene, robot_puppet.root, robot_puppet.position)
 
 	const realm = makeRealmEcs<{
 		count: number

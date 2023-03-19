@@ -8,18 +8,20 @@ import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 export class RobotPuppet {
 	#scene: Scene;
 	position: V3 = v3.zero()
-	isLoaded: Promise<void>
+	isLoaded = this.#loadGlb()
 
 	constructor({scene, position}: {scene: Scene, position: V3}) {
 		this.#scene = scene
 		this.position = position
-		this.isLoaded = this.#loadGlb().then(() => {
-			this.setPosition(position)
+		this.isLoaded.then(() => {
+			// it centers robot inside capsule
+			const root = this.root as TransformNode
+			root.position = new Vector3(0,-1,0)
 		})
 	}
 
 	async #loadGlb() {
-		await loadGlb(this.#scene, `../../assets/temp/spherebot3.glb`)
+		return await loadGlb(this.#scene, `../../assets/temp/spherebot3.glb`)
 	}
 
 	setVerticalAim(y: number) {
@@ -39,7 +41,7 @@ export class RobotPuppet {
 	}
 
 	setPosition(vector: V3) {
-		const parent = this.root as TransformNode
+		const parent = this.root?.parent as TransformNode
 		if(parent)
 			parent.position = new Vector3(...vector)
 	}
