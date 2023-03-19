@@ -12,7 +12,6 @@ import "@babylonjs/core/Culling/ray.js"
 import "@babylonjs/core/PostProcesses/index.js"
 import "@babylonjs/core/Rendering/index.js"
 
-import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
 import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
@@ -20,7 +19,6 @@ import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/cascadedShadowGenerator.js"
 import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
-import {makeRobotCapsule} from "./utils/make-robot-capsule.js"
 
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
@@ -28,11 +26,12 @@ import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/fly
 
 import {NubEffectEvent} from "@benev/nubs"
 import {makeRealmEcs} from "./realm/ecs.js"
-import {setupPhysics} from "./physics/setup-physics.js"
 import {loadGlb} from "./utils/babylon/load-glb.js"
-import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
-import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
+import {setupPhysics} from "./physics/setup-physics.js"
 import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
+import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
+import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
+import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -106,6 +105,18 @@ void async function main() {
 			stick: 1 / 100,
 			pointer: 1 / 200,
 		},
+	})
+
+	const character_capsule = integrate_nubs_to_control_character_capsule({
+		scene,
+		nub_context: nubContext!,
+		render_loop: renderLoop,
+		speeds_for_movement: {
+			slow: 1 / 50,
+			base: 1 / 10,
+			fast: 1 / 2,
+		}
+
 	})
 
 	const {camera} = fly
