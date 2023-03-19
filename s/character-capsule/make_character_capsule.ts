@@ -19,9 +19,9 @@ export function make_character_capsule({
 
 	let current_look = v2.zero()
 
-	const capsule = MeshBuilder.CreateCapsule("character-capsule", {
-		radius: 1.2,
-		height: 5,
+	const capsule = MeshBuilder.CreateCapsule("robot-capsule", {
+		radius: 0.80,
+		height: 3,
 	}, scene)
 
 	// capsule.physicsImpostor = new PhysicsImpostor(capsule, PhysicsImpostor.CylinderImpostor, {

@@ -15,28 +15,26 @@ import "@babylonjs/core/Rendering/index.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
 import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
+import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/cascadedShadowGenerator.js"
 import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
 
+import {NubEffectEvent} from "@benev/nubs"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
 import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/flycam/integrate_nubs_to_control_fly_camera.js"
 
-import {NubEffectEvent} from "@benev/nubs"
 import {makeRealmEcs} from "./realm/ecs.js"
 import {loadGlb} from "./utils/babylon/load-glb.js"
+import {RobotPuppet} from "./utils/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
-import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
-import {makeRobotCapsule} from "./utils/make-robot-capsule.js"
-import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
-import {RobotPuppet} from "./utils/robot-puppet.js"
-
+import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -112,6 +110,9 @@ void async function main() {
 	// 	},
 	// })
 
+	const robot_puppet = new RobotPuppet({scene, position: [10,10,0]})
+	await robot_puppet.isLoaded
+
 	const character_capsule = integrate_nubs_to_control_character_capsule({
 		nub_context: nubContext!,
 		render_loop: renderLoop,
@@ -132,7 +133,9 @@ void async function main() {
 		capsule: make_character_capsule({
 			scene,
 			position: [0, 5, 8],
-		})
+		}),
+		root: robot_puppet.root,
+		position: robot_puppet.position
 	})
 
 
@@ -289,10 +292,6 @@ void async function main() {
 				ray.pickedMesh.applyImpulse(new Vector3(0, 5, 0), ray.pickedPoint!);
 			}
 		})
-
-	const robot_puppet = new RobotPuppet({scene, position: [10,10,0]})
-	await robot_puppet.isLoaded
-	makeRobotCapsule(scene, robot_puppet.root, robot_puppet.position)
 
 	const realm = makeRealmEcs<{
 		count: number
