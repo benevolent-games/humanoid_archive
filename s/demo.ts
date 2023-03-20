@@ -26,7 +26,6 @@ import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
 import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/flycam/integrate_nubs_to_control_fly_camera.js"
 
-import {makeRealmEcs} from "./realm/ecs.js"
 import {loadGlb} from "./utils/babylon/load-glb.js"
 import {RobotPuppet} from "./utils/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
@@ -309,25 +308,6 @@ void async function main() {
 					ray.pickedPoint!);
 			}
 		})
-
-	const realm = makeRealmEcs<{
-		count: number
-	}>(({system}) => ({
-
-		systems: [
-			system()
-			.label("counter")
-			.selector(({count}) => ({count}))
-			.executor(({count}) => {
-				const newCount = count + 1
-				return {count: newCount}
-			}),
-		]
-	}))
-
-	const id = realm.addEntity({count: 0})
-	realm.executeSystems()
-	// setInterval(realm.executeSystems, 1000)
 
 	console.log("🤖 humanoid ready")
 	resize(theater.settings.resolutionScale ?? 100)
