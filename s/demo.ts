@@ -32,6 +32,8 @@ import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
 import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
+import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
+import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -80,46 +82,65 @@ void async function main() {
 		url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`, 
 	})
 
-	const fly = integrate_nubs_to_control_fly_camera({
-		nub_context: nubContext!,
-		render_loop: renderLoop,
+	// const fly = integrate_nubs_to_control_fly_camera({
+	// 	nub_context: nubContext!,
+	// 	render_loop: renderLoop,
 
-		fly: make_fly_camera({
-			scene,
-			position: [0, 0, 0],
-		}),
+	// 	fly: make_fly_camera({
+	// 		scene,
+	// 		position: [0, 0, 0],
+	// 	}),
 
-		speeds_for_movement: {
-			slow: 1 / 25,
-			base: 1 / 5,
-			fast: 1,
-		},
+	// 	speeds_for_movement: {
+	// 		slow: 1 / 25,
+	// 		base: 1 / 5,
+	// 		fast: 1,
+	// 	},
 	
-		speeds_for_looking_with_keys_and_stick: {
-			slow: 1 / 200,
-			base: 1 / 25,
-			fast: 1 / 5,
-		},
+	// 	speeds_for_looking_with_keys_and_stick: {
+	// 		slow: 1 / 200,
+	// 		base: 1 / 25,
+	// 		fast: 1 / 5,
+	// 	},
 	
-		look_sensitivity: {
-			stick: 1 / 100,
-			pointer: 1 / 200,
-		},
-	})
+	// 	look_sensitivity: {
+	// 		stick: 1 / 100,
+	// 		pointer: 1 / 200,
+	// 	},
+	// })
 
 	const character_capsule = integrate_nubs_to_control_character_capsule({
-		scene,
 		nub_context: nubContext!,
 		render_loop: renderLoop,
 		speeds_for_movement: {
 			slow: 1 / 50,
 			base: 1 / 10,
 			fast: 1 / 2,
-		}
-
+		},
+		look_sensitivity: {
+			stick: 1 / 100,
+			pointer: 1 / 200,
+		},
+		speeds_for_looking_with_keys_and_stick: {
+			slow: 1 / 200,
+			base: 1 / 25,
+			fast: 1 / 5,
+		},
+		capsule: make_character_capsule({
+			scene,
+			position: [0, 5, 8],
+		})
 	})
 
-	const {camera} = fly
+
+	const first_person_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
+	first_person_camera.ignoreParentScaling = true
+	first_person_camera.parent = character_capsule.capsule
+
+	scene.activeCamera = first_person_camera
+	const camera = scene.activeCamera
+
+	// const {camera} = fly
 	camera.minZ = 1
 	camera.maxZ = 500
 	camera.fov = 1.2
