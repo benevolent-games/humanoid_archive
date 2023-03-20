@@ -9,5 +9,6 @@ export default ({title, v}: WebsiteContext & {title: string}) => html`
 <meta name="darkreader" content="dark"/>
 <title>${title}</title>
 
-<link rel=stylesheet href="${v("/index.css")}"/>
+<link rel=stylesheet href="${v("/styles.css")}"/>
+
 `

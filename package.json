@@ -9,7 +9,7 @@
 		"x",
 		"s"
 	],
-	"main": "x/humanoid.js",
+	"main": "x/index.js",
 	"scripts": {
 		"postinstall": "if test -z \"$HUMANOID_IGNORE_DEV_POSTINSTALL\"; then run-p hack-babylon; fi",
 		"build": "run-s clean && run-p compile importly && run-s test bundle minify",
