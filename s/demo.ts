@@ -76,7 +76,9 @@ void async function main() {
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
 	const shadow_map = shadow_generator.getShadowMap()
 
-	// await load_level_and_setup_meshes_for_collision({scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator})
+	// await load_level_and_setup_meshes_for_collision({
+	// 	scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator
+	// })
 	await load_level_and_setup_meshes_for_collision({
 		scene,
 		shadow_generator,
@@ -110,7 +112,7 @@ void async function main() {
 	// 	},
 	// })
 
-	const robot_puppet = new RobotPuppet({scene, position: [10,10,0]})
+	const robot_puppet = new RobotPuppet({scene, position: [0,0,0]})
 	await robot_puppet.isLoaded
 
 	const character_capsule = integrate_nubs_to_control_character_capsule({
@@ -132,18 +134,24 @@ void async function main() {
 		},
 		capsule: make_character_capsule({
 			scene,
-			position: [0, 5, 8],
+			position: [0, 5, 0],
+			robot_puppet
 		}),
-		root: robot_puppet.root,
-		position: robot_puppet.position
 	})
 
+	const robot_upper = robot_puppet.upper!
+	const robot_root = robot_puppet.root!
 
-	const first_person_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
-	first_person_camera.ignoreParentScaling = true
-	first_person_camera.parent = character_capsule.capsule
+	robot_root.parent = character_capsule.capsule
 
-	scene.activeCamera = first_person_camera
+	const third_person_camera = new TargetCamera("third-cam", Vector3.Zero(), scene)
+	third_person_camera.ignoreParentScaling = true
+	third_person_camera.parent = robot_upper
+
+	const {x, y, z} = robot_upper.position
+	third_person_camera.position = new Vector3(x, y, z - 5)
+
+	scene.activeCamera = third_person_camera
 	const camera = scene.activeCamera
 
 	// const {camera} = fly

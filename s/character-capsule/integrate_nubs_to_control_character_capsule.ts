@@ -6,18 +6,11 @@ import {add_user_pointer_movements_to_look} from "@benev/toolbox/x/babylon/flyca
 import {get_user_look_trajectory_from_keys_and_stick} from "@benev/toolbox/x/babylon/flycam/utils/get_user_look_trajectory_from_keys_and_stick.js"
 import {get_user_move_trajectory_from_keys_and_stick} from "@benev/toolbox/x/babylon/flycam/utils/get_user_move_trajectory_from_keys_and_stick.js"
 
-import {Node} from "@babylonjs/core/node.js"
-import {Scene} from "@babylonjs/core/scene.js"
-import {Nullable} from "@babylonjs/core/types.js"
-import {Vector3} from "@babylonjs/core/Maths/math.js"
-import {V3} from "@benev/toolbox/x/utils/v3.js"
-
-
 export function integrate_nubs_to_control_character_capsule({
 		capsule, look_sensitivity,
-		speeds_for_looking_with_keys_and_stick,
 		nub_context, render_loop,
-		speeds_for_movement, root, position
+		speeds_for_movement,
+		speeds_for_looking_with_keys_and_stick,
 	}: {
 		nub_context: NubContext
 		look_sensitivity: {
@@ -28,8 +21,6 @@ export function integrate_nubs_to_control_character_capsule({
 		render_loop: Set<() => void>
 		speeds_for_looking_with_keys_and_stick: Speeds
 		capsule: ReturnType<typeof make_character_capsule>
-		root?: Nullable<Node>
-		position?: V3
 	}) {
 
 	NubEffectEvent
@@ -44,10 +35,6 @@ export function integrate_nubs_to_control_character_capsule({
 			is_pointer_locked: () => !!document.pointerLockElement,
 		})
 	)
-
-	const caps = capsule.capsule
-	if(root) {root.parent = caps}
-	if (position) {caps.position = new Vector3(...position)}
 
 	function simulate() {
 

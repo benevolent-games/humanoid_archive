@@ -8,13 +8,15 @@ import {Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
+import {RobotPuppet} from "../utils/robot-puppet.js"
 
 
 export function make_character_capsule({
-		scene, position
+		scene, position, robot_puppet
 	}: {
 		scene: Scene
 		position: V3
+		robot_puppet: RobotPuppet
 	}) {
 
 	let current_look = v2.zero()
@@ -24,13 +26,14 @@ export function make_character_capsule({
 		height: 3,
 	}, scene)
 
-	// capsule.physicsImpostor = new PhysicsImpostor(capsule, PhysicsImpostor.CylinderImpostor, {
-	// 	mass: 3,
-	// 	friction: 1
-	// })
+	capsule.physicsImpostor = new PhysicsImpostor(capsule, PhysicsImpostor.MeshImpostor, {
+		mass: 3,
+		friction: 2,
+		restitution: 0,
+	})
 
 	const material = new StandardMaterial("capsule", scene)
-	material.alpha = 0.5
+	material.alpha = 0.1
 
 	capsule.material = material
 	capsule.position = new Vector3(...position)
@@ -52,7 +55,8 @@ export function make_character_capsule({
 			current_look = add_to_look_vector_but_cap_vertical_axis(current_look, vector)
 			const [x, y] = current_look
 			capsule.rotationQuaternion = Quaternion
-				.RotationYawPitchRoll(x, -y, 0)
+				.RotationYawPitchRoll(x, 0, 0)
+			robot_puppet.setVerticalAim(y)
 		},
 	}
 }

@@ -22,7 +22,7 @@ export async function load_level_and_setup_meshes_for_collision({
 
 	const physics_impostor_settings = {
 		mass: 0,
-		friction: 0.5,
+		friction: 2,
 		restitution: 0.3
 	}
 
