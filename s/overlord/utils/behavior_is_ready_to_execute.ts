@@ -3,7 +3,7 @@ import {Freq, Frequency} from "../types.js"
 
 export function behavior_is_ready_to_execute(
 		phases: Freq<boolean>,
-		frequency: Frequency
+		frequency: Frequency,
 	) {
 
 	return (

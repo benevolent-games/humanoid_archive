@@ -9,6 +9,7 @@ export class Overlord<S extends Rec> {
 	#get_new_id = make_id_getter()
 	#behaviors: Behavior[] = []
 	#entities: Map<number, Partial<S>> = new Map()
+	#entity_disposers = new Map<number, ((es: Partial<S>) => void)>()
 
 	#last_tick = 0
 	#game_time = 0
@@ -19,14 +20,25 @@ export class Overlord<S extends Rec> {
 		this.#check_frequency_phases = make_frequency_checkers(frequencies)
 	}
 
-	add_entity(entity_state: Partial<S>) {
+	add_entity<ES extends Partial<S>>(
+			entity_state: ES,
+			dispose: ((e: ES) => void) = () => {},
+		) {
 		const id = this.#get_new_id()
 		this.#entities.set(id, entity_state)
+		this.#entity_disposers.set(id, dispose as any)
 		return id
 	}
 
 	delete_entity(id: number) {
+		const entity = this.#entities.get(id)!
+		const dispose = this.#entity_disposers.get(id)!
+
+		if (!entity || !dispose)
+			throw new Error(`unknown entity "${id}"`)
+
 		this.#entities.delete(id)
+		dispose(entity)
 	}
 
 	tick() {
@@ -38,7 +50,7 @@ export class Overlord<S extends Rec> {
 				const selected = select_entities(this.#entities, behavior.selector)
 
 				for (const [id, entity] of selected)
-					behavior.activity(entity as any, id)
+					behavior.activity(entity, id)
 			}
 		}
 	}
