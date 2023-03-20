@@ -1,6 +1,7 @@
-import {behaviors} from "./overlord/behaviors.js"
-import {Overlord} from "./overlord/overlord.js"
+
 import {Frequency} from "./overlord/types.js"
+import {Overlord} from "./overlord/overlord.js"
+import {behaviors} from "./overlord/behaviors.js"
 
 export type State = {
 	count: number
