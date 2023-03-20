@@ -21,7 +21,7 @@ export class RobotPuppet {
 	}
 
 	async #loadGlb() {
-		return await loadGlb(this.#scene, `../../assets/temp/spherebot3.glb`)
+		return await loadGlb(this.#scene, `https://dl.dropbox.com/s/ka0uunak8h9fts5/spherebot3_1.glb`)
 	}
 
 	setVerticalAim(y: number) {
