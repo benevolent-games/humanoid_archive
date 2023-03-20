@@ -1,23 +1,22 @@
 
 import {make_id_getter} from "./utils/make_id_getter.js"
 import {select_entities} from "./utils/select_entities.js"
+import {frequency_phases} from "./utils/frequency_phases.js"
 import {Behavior, Freq, OverlordParams, Rec} from "./types.js"
-import {make_frequency_checkers} from "./utils/make_frequency_checkers.js"
 import {behavior_is_ready_to_execute} from "./utils/behavior_is_ready_to_execute.js"
 
 export class Overlord<S extends Rec> {
 	#get_new_id = make_id_getter()
 	#behaviors: Behavior[] = []
+	#frequencies: Freq<number>
 	#entities: Map<number, Partial<S>> = new Map()
 	#entity_disposers = new Map<number, ((es: Partial<S>) => void)>()
-
-	#last_tick = 0
-	#game_time = 0
-	#check_frequency_phases: (game_time: number) => Freq<boolean>
+	#phases: () => Freq<boolean>
 
 	constructor({behaviors, frequencies}: OverlordParams<S>) {
 		this.#behaviors = behaviors
-		this.#check_frequency_phases = make_frequency_checkers(frequencies)
+		this.#frequencies = frequencies
+		this.#phases = frequency_phases(this.#frequencies, () => Date.now())
 	}
 
 	add_entity<ES extends Partial<S>>(
@@ -42,8 +41,7 @@ export class Overlord<S extends Rec> {
 	}
 
 	tick() {
-		this.#game_time += Date.now() - this.#last_tick
-		const phases = this.#check_frequency_phases(this.#game_time)
+		const phases = this.#phases()
 
 		for (const behavior of this.#behaviors) {
 			if (behavior_is_ready_to_execute(phases, behavior.frequency)) {

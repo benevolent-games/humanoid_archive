@@ -8,11 +8,12 @@ export function select_entities<S extends Rec>(
 
 	const selected: [number, Partial<S>][] = []
 
-	for (const entity of entities) {
+	for (const entry of entities) {
+		const [, entity] = entry
 		const matching = selector.every(s => entity.hasOwnProperty(s))
 
 		if (matching)
-			selected.push(entity)
+			selected.push(entry)
 	}
 
 	return selected
