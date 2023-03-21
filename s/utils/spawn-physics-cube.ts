@@ -24,7 +24,7 @@ export async function spawnPhysicsCube(
 
 	const scaledNormal = normal.scale(5)
 	const {x, y, z} = position
-	const newPosition = new Vector3(x, y+2, z).add(scaledNormal)
+	const newPosition = new Vector3(x, y < 6 ? y+2 : 6, z).add(scaledNormal)
 
 	box.position = newPosition
 	box.material = material
