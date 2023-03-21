@@ -144,6 +144,10 @@ void async function main() {
 
 	robot_root.parent = character_capsule.capsule
 
+	const first_person_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
+	first_person_camera.ignoreParentScaling = true
+	first_person_camera.parent = robot_upper
+
 	const third_person_camera = new TargetCamera("third-cam", Vector3.Zero(), scene)
 	third_person_camera.ignoreParentScaling = true
 	third_person_camera.parent = robot_upper
@@ -151,7 +155,7 @@ void async function main() {
 	const {x, y, z} = robot_upper.position
 	third_person_camera.position = new Vector3(x, y, z - 5)
 
-	scene.activeCamera = third_person_camera
+	scene.activeCamera = first_person_camera
 	const camera = scene.activeCamera
 
 	// const {camera} = fly
