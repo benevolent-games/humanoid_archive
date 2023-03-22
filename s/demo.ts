@@ -29,6 +29,7 @@ import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/fly
 import {loadGlb} from "./utils/babylon/load-glb.js"
 import {RobotPuppet} from "./utils/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
+import {toggleCameraView} from "./utils/toggle-camera-view.js"
 import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
@@ -156,6 +157,8 @@ void async function main() {
 
 	scene.activeCamera = first_person_camera
 	const camera = scene.activeCamera
+
+	toggleCameraView({scene, first_person_camera, third_person_camera})
 
 	// const {camera} = fly
 	camera.minZ = 1
