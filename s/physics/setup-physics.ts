@@ -11,8 +11,7 @@ export async function setupPhysics(
 	) {
 	
 	const ammo = await Ammo()
-	const physics = new AmmoJSPlugin(false, ammo)
-	physics.setTimeStep(16)
+	const physics = new AmmoJSPlugin(true, ammo)
 
 	scene.enablePhysics(gravity, physics)
 

@@ -32,6 +32,8 @@ export function make_character_capsule({
 		restitution: 0,
 	})
 
+	capsule.physicsImpostor.physicsBody.setAngularFactor(0)
+
 	const material = new StandardMaterial("capsule", scene)
 	material.alpha = 0.1
 
