@@ -294,6 +294,7 @@ void async function main() {
 			const centerX = engine.getRenderWidth() / 2
 			const centerY = engine.getRenderHeight() / 2
 			const ray = scene.pick(centerX, centerY)
+			const jump = detail.effect === "jump" && (detail as NubDetail.Key).pressed
 			const isLeftClick = detail.effect === "primary" && (detail as NubDetail.Key).pressed
 			const isRightClick = detail.effect === "secondary" && (detail as NubDetail.Key).pressed
 			if (isRightClick && ray.pickedPoint && ray.pickedMesh?.name !== "box") {
@@ -309,6 +310,9 @@ void async function main() {
 				ray.pickedMesh.applyImpulse(
 					impulseForceDirection,
 					ray.pickedPoint!);
+			}
+			if (jump) {
+				character_capsule.jump()
 			}
 		})
 

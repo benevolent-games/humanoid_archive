@@ -4,8 +4,10 @@ import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
 import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon/flycam/utils/add_to_look_vector_but_cap_vertical_axis.js"
 
 import {Scene} from "@babylonjs/core/scene.js"
+import {Ray} from "@babylonjs/core/Culling/ray.js"
 import {Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
+import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {RobotPuppet} from "../utils/robot-puppet.js"
@@ -40,9 +42,19 @@ export function make_character_capsule({
 	capsule.material = material
 	capsule.position = new Vector3(...position)
 
+	const ray = new Ray(new Vector3(capsule.position.x, capsule.position.y, capsule.position.z), Vector3.Down(), 1.8)
+	const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
+
 	return {
 		capsule,
-
+		jump() {
+			ray.origin = new Vector3(capsule.position.x, capsule.position.y, capsule.position.z)
+			const pick = scene.pickWithRay(ray, predicate)
+			if(pick?.hit)
+				capsule.physicsImpostor?.applyImpulse(
+					new Vector3(0, 20, 0), capsule.getAbsolutePosition()
+				)
+		},
 		add_move(vector: V2) {
 			const [x, z] = vector
 			const translation = new Vector3(x, 0, z)
