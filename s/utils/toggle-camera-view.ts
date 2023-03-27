@@ -2,14 +2,22 @@
 import {NubCauseEvent} from "@benev/nubs"
 import {Scene} from "@babylonjs/core/scene.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
+import {Vector3} from "@babylonjs/core/Maths/math.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 export function toggleCameraView({
-		scene, first_person_camera, third_person_camera,
+	first_person_camera, robot_upper
 	}: {
-		scene: Scene
+		robot_upper: TransformNode
 		first_person_camera: TargetCamera
-		third_person_camera: TargetCamera
 	}) {
+
+	enum CameraView {
+		first_person,
+		third_person,
+	}
+
+	let view = CameraView.first_person
 
 	NubCauseEvent
 		.target(window)
@@ -21,9 +29,17 @@ export function toggleCameraView({
 				detail.pressed
 			)
 
-			if (toggle_key_is_pressed)
-				scene.activeCamera = scene.activeCamera === first_person_camera
-					? third_person_camera
-					: first_person_camera
+			const {x, y, z} = robot_upper.position
+
+			if (toggle_key_is_pressed) {
+				if (view === CameraView.first_person) {
+					first_person_camera.position = new Vector3(x, y + 1, z - 6)
+					view = CameraView.third_person
+				}
+				else if(view === CameraView.third_person) {
+					first_person_camera.position = new Vector3(x, y, z)
+					view = CameraView.first_person
+				}
+			}
 	})
 }
