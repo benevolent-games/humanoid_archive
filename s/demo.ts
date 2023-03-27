@@ -310,6 +310,9 @@ void async function main() {
 			if (jump) {
 				character_capsule.jump()
 			}
+			if (isLeftClick) {
+				character_capsule.shoot()
+			}
 		})
 
 	console.log("🤖 humanoid ready")
