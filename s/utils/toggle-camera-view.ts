@@ -6,10 +6,10 @@ import {Vector3} from "@babylonjs/core/Maths/math.js"
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 export function toggleCameraView({
-	first_person_camera, robot_upper
+		character_camera, robot_upper
 	}: {
 		robot_upper: TransformNode
-		first_person_camera: TargetCamera
+		character_camera: TargetCamera
 	}) {
 
 	enum CameraView {
@@ -33,11 +33,11 @@ export function toggleCameraView({
 
 			if (toggle_key_is_pressed) {
 				if (view === CameraView.first_person) {
-					first_person_camera.position = new Vector3(x, y + 1, z - 6)
+					character_camera.position = new Vector3(x, y + 1, z - 6)
 					view = CameraView.third_person
 				}
 				else if(view === CameraView.third_person) {
-					first_person_camera.position = new Vector3(x, y, z)
+					character_camera.position = new Vector3(x, y, z)
 					view = CameraView.first_person
 				}
 			}

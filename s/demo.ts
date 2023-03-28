@@ -76,14 +76,14 @@ void async function main() {
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
 	const shadow_map = shadow_generator.getShadowMap()
 
-	await load_level_and_setup_meshes_for_collision({
-		scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator
-	})
 	// await load_level_and_setup_meshes_for_collision({
-	// 	scene,
-	// 	shadow_generator,
-	// 	url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`, 
+	// 	scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator
 	// })
+	await load_level_and_setup_meshes_for_collision({
+		scene,
+		shadow_generator,
+		url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`, 
+	})
 
 	// const fly = integrate_nubs_to_control_fly_camera({
 	// 	nub_context: nubContext!,
@@ -144,16 +144,16 @@ void async function main() {
 
 	robot_root.parent = character_capsule.capsule
 
-	const first_person_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
-	first_person_camera.ignoreParentScaling = true
-	first_person_camera.parent = robot_upper
+	const character_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
+	character_camera.ignoreParentScaling = true
+	character_camera.parent = robot_upper
 
-	scene.activeCamera = first_person_camera
+	scene.activeCamera = character_camera
 	const camera = scene.activeCamera
 
 	toggleCameraView({
 		robot_upper,
-		first_person_camera,
+		character_camera,
 	})
 
 	// const {camera} = fly
