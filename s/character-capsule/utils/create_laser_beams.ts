@@ -6,7 +6,7 @@ import {PickingInfo} from "@babylonjs/core/Collisions/pickingInfo.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 
-export function createLaserBeams ({
+export function create_laser_beams ({
 		pick, robotRightGun, robotLeftGun, laserMaterial, scene
 	}: {
 		pick: PickingInfo

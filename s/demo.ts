@@ -132,7 +132,7 @@ void async function main() {
 			base: 1 / 25,
 			fast: 1 / 5,
 		},
-		capsule: make_character_capsule({
+		capsuleTransformNode: make_character_capsule({
 			scene,
 			position: [0, 5, 0],
 			robot_puppet
@@ -142,7 +142,7 @@ void async function main() {
 	const robot_upper = robot_puppet.upper!
 	const robot_root = robot_puppet.root!
 
-	robot_root.parent = character_capsule.capsule
+	robot_root.parent = character_capsule.capsuleTransformNode
 
 	const character_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
 	character_camera.ignoreParentScaling = true
@@ -291,6 +291,8 @@ void async function main() {
 			const centerY = engine.getRenderHeight() / 2
 			const ray = scene.pick(centerX, centerY)
 			const jump = detail.effect === "jump" && (detail as NubDetail.Key).pressed
+			const crouch = detail.effect === "crouch" && (detail as NubDetail.Key).pressed
+			const crouchEnd = detail.effect === "crouch" && !(detail as NubDetail.Key).pressed
 			const isLeftClick = detail.effect === "primary" && (detail as NubDetail.Key).pressed
 			const isRightClick = detail.effect === "secondary" && (detail as NubDetail.Key).pressed
 			if (isRightClick && ray.pickedPoint && ray.pickedMesh?.name !== "box") {
@@ -312,6 +314,12 @@ void async function main() {
 			}
 			if (isLeftClick) {
 				character_capsule.shoot()
+			}
+			if (crouch) {
+				character_capsule.crouch()
+			}
+			if (crouchEnd) {
+				character_capsule.stand()
 			}
 		})
 

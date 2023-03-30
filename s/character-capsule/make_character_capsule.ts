@@ -5,14 +5,14 @@ import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon
 
 import {Scene} from "@babylonjs/core/scene.js"
 import {Ray} from "@babylonjs/core/Culling/ray.js"
-import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 import {Color3, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
-import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 
 import {RobotPuppet} from "../utils/robot-puppet.js"
-import {createLaserBeams} from "../utils/create-laser-beams.js"
+import {create_laser_beams} from "./utils/create_laser_beams.js"
+import {active_capsule_manager} from "./utils/active_capsule_manager.js"
 
 
 export function make_character_capsule({
@@ -24,70 +24,70 @@ export function make_character_capsule({
 	}) {
 
 	let current_look = v2.zero()
+	let capsuleTransformNode = new TransformNode("capsule-node", scene)
+	
+	const {
+		makeStandingCapsuleActive,
+		makeCrouchingCapsuleActive,
+		getActiveCapsule
+	} = active_capsule_manager({capsuleTransformNode, scene})
+	const initialCapsule = makeStandingCapsuleActive()
+	initialCapsule.position = new Vector3(...position)
 
-	const capsule = MeshBuilder.CreateCapsule("robot-capsule", {
-		radius: 0.80,
-		height: 3,
-	}, scene)
-
-	capsule.physicsImpostor = new PhysicsImpostor(capsule, PhysicsImpostor.MeshImpostor, {
-		mass: 3,
-		friction: 2,
-		restitution: 0,
-	})
-
-	capsule.physicsImpostor.physicsBody.setAngularFactor(0)
-
-	const material = new StandardMaterial("capsule", scene)
-	material.alpha = 0.1
-
-	capsule.material = material
-	capsule.position = new Vector3(...position)
-
-	const ray = new Ray(new Vector3(capsule.position.x, capsule.position.y, capsule.position.z), Vector3.Down(), 1.8)
 	const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
-
 	const robotRightGun = robot_puppet.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
 	const robotLeftGun = robot_puppet.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunleft1_primitive0")!
-	const shootRay = new Ray(robotRightGun!.getAbsolutePosition(), robotRightGun!.forward, 100)
 	const laserMaterial = new StandardMaterial("laserMaterial", scene)
 	laserMaterial.emissiveColor = Color3.Red()
 
 	return {
-		capsule,
+		capsuleTransformNode,
 		shoot() {
-			shootRay.origin = new Vector3(robotRightGun!.position.x, robotRightGun!.position.y, robotRightGun!.position.z)
-			shootRay.direction = robotRightGun!.forward!
+			const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
 			const pick = scene.pickWithRay(shootRay)
 			if (pick?.hit) {
-				const laserBeams = createLaserBeams({pick, robotLeftGun, robotRightGun, scene, laserMaterial})
+				const laserBeams = create_laser_beams({pick, robotLeftGun, robotRightGun, scene, laserMaterial})
 				const removeLaserBeam = setTimeout(() =>
 					laserBeams.forEach(laserBeam => laserBeam.dispose()), 500)
 				return () => clearTimeout(removeLaserBeam)
 			}
 		},
 		jump() {
-			ray.origin = new Vector3(capsule.position.x, capsule.position.y, capsule.position.z)
+			const activeCapsule = getActiveCapsule()
+			const ray = new Ray(new Vector3(
+				activeCapsule!.position.x,
+				activeCapsule!.position.y,
+				activeCapsule!.position.z), Vector3.Down(), 1.8)
 			const pick = scene.pickWithRay(ray, predicate)
 			if(pick?.hit)
-				capsule.physicsImpostor?.applyImpulse(
-					new Vector3(0, 20, 0), capsule.getAbsolutePosition()
+				activeCapsule!.physicsImpostor?.applyImpulse(
+					new Vector3(0, 20, 0), activeCapsule!.getAbsolutePosition()
 				)
+		},
+		crouch() {
+			makeCrouchingCapsuleActive()
+			robot_puppet.upper!.position = new Vector3(0, 1.2, 0)
+		},
+		stand() {
+			makeStandingCapsuleActive()
+			robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
 		},
 		add_move(vector: V2) {
 			const [x, z] = vector
 			const translation = new Vector3(x, 0, z)
+			const activeCapsule = getActiveCapsule()
 
 			const translation_considering_rotation = translation
-				.applyRotationQuaternion(capsule.absoluteRotationQuaternion)
-
-			capsule.position.addInPlace(translation_considering_rotation)
+				.applyRotationQuaternion(activeCapsule!.absoluteRotationQuaternion)
+			activeCapsule!.position.addInPlace(translation_considering_rotation)
 		},
 
 		add_look(vector: V2) {
-			current_look = add_to_look_vector_but_cap_vertical_axis(current_look, vector)
 			const [x, y] = current_look
-			capsule.rotationQuaternion = Quaternion
+			const activeCapsule = getActiveCapsule()
+			current_look = add_to_look_vector_but_cap_vertical_axis(current_look, vector)
+
+			activeCapsule!.rotationQuaternion = Quaternion
 				.RotationYawPitchRoll(x, 0, 0)
 			robot_puppet.setVerticalAim(y)
 		},

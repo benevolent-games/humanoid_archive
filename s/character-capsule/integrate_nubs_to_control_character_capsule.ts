@@ -7,7 +7,7 @@ import {get_user_look_trajectory_from_keys_and_stick} from "@benev/toolbox/x/bab
 import {get_user_move_trajectory_from_keys_and_stick} from "@benev/toolbox/x/babylon/flycam/utils/get_user_move_trajectory_from_keys_and_stick.js"
 
 export function integrate_nubs_to_control_character_capsule({
-		capsule, look_sensitivity,
+		capsuleTransformNode, look_sensitivity,
 		nub_context, render_loop,
 		speeds_for_movement,
 		speeds_for_looking_with_keys_and_stick,
@@ -20,7 +20,7 @@ export function integrate_nubs_to_control_character_capsule({
 		speeds_for_movement: Speeds
 		render_loop: Set<() => void>
 		speeds_for_looking_with_keys_and_stick: Speeds
-		capsule: ReturnType<typeof make_character_capsule>
+		capsuleTransformNode: ReturnType<typeof make_character_capsule>
 	}) {
 
 	NubEffectEvent
@@ -31,21 +31,21 @@ export function integrate_nubs_to_control_character_capsule({
 			effect: "look",
 			sensitivity: look_sensitivity.pointer,
 			cause_to_use_when_pointer_not_locked: "Lookpad",
-			add_look: capsule.add_look,
+			add_look: capsuleTransformNode.add_look,
 			is_pointer_locked: () => !!document.pointerLockElement,
 		})
 	)
 
 	function simulate() {
 
-		capsule.add_move(
+		capsuleTransformNode.add_move(
 			get_user_move_trajectory_from_keys_and_stick(
 				nub_context,
 				speeds_for_movement,
 			)
 		)
 
-		capsule.add_look(
+		capsuleTransformNode.add_look(
 			get_user_look_trajectory_from_keys_and_stick(
 				nub_context,
 				speeds_for_looking_with_keys_and_stick,
@@ -56,6 +56,6 @@ export function integrate_nubs_to_control_character_capsule({
 
 	render_loop.add(simulate)
 
-	return capsule
+	return capsuleTransformNode
 
 }

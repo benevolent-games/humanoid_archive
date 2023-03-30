@@ -17,7 +17,7 @@ export class RobotPuppet {
 			m.meshes.forEach(m => {if (m.id.startsWith("collision")) m.visibility = 0})
 			// it centers robot inside capsule
 			const root = this.root as TransformNode
-			root.position = new Vector3(0,-1,0)
+			root.position = new Vector3(0,-0.8,0)
 		})
 	}
 
