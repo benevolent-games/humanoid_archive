@@ -39,6 +39,7 @@ export function make_character_capsule({
 	const robotLeftGun = robot_puppet.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunleft1_primitive0")!
 	const laserMaterial = new StandardMaterial("laserMaterial", scene)
 	laserMaterial.emissiveColor = Color3.Red()
+	let isSomethingAboveChecker: null | number = null
 
 	return {
 		capsuleTransformNode,
@@ -69,8 +70,27 @@ export function make_character_capsule({
 			robot_puppet.upper!.position = new Vector3(0, 1.2, 0)
 		},
 		stand() {
-			makeStandingCapsuleActive()
-			robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
+			const activeCapsule = getActiveCapsule()
+			const ray = new Ray(activeCapsule!.getAbsolutePosition(), Vector3.Up(), 1.5)
+			const isSomethingAbove = scene.pickWithRay(ray, predicate)?.hit
+			if (!isSomethingAbove) {
+				makeStandingCapsuleActive()
+				robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
+			} else {
+				if (!isSomethingAboveChecker) {
+					isSomethingAboveChecker = setInterval(() => {
+						const activeCapsule = getActiveCapsule()
+						const ray = new Ray(activeCapsule!.getAbsolutePosition(), Vector3.Up(), 1.5)
+						const isSomethingAbove = scene.pickWithRay(ray, predicate)?.hit
+						if (!isSomethingAbove) {
+							makeStandingCapsuleActive()
+							robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
+							clearInterval(isSomethingAboveChecker!)
+							isSomethingAboveChecker = null
+						}
+					}, 100)
+				}
+			}
 		},
 		add_move(vector: V2) {
 			const [x, z] = vector
