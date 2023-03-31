@@ -26,6 +26,6 @@ const overlord = new Overlord({
 	},
 })
 
-overlord.add_entity({count: 0})
+overlord.entities.add({count: 0})
 
 setInterval(() => overlord.tick(), 10)
