@@ -53,8 +53,7 @@ void async function main() {
 		}
 	} = theater
 
-	const gravity = new Vector3(0, -9.81, 0)
-	await setupPhysics(scene, gravity)
+	await setupPhysics(scene, [0, -9.81, 0])
 
 	const {hash} = window.location
 	const quality = (
@@ -74,43 +73,19 @@ void async function main() {
 
 	const [light] = lighting_assets.lights
 	const shadow_generator = light.getShadowGenerator() as CascadedShadowGenerator
-	const shadow_map = shadow_generator.getShadowMap()
+	const shadow_map = shadow_generator.getShadowMap()!
 
-	// await load_level_and_setup_meshes_for_collision({
-	// 	scene, url: `/assets/temp/humanoidconcept7.glb`, shadow_generator
-	// })
 	await load_level_and_setup_meshes_for_collision({
-		scene,
-		shadow_generator,
 		url: `https://dl.dropbox.com/s/h7x05efphbi7l9j/humanoidconcept7.glb`, 
+		scene,
+		lighting: {
+			light,
+			shadows: {
+				map: shadow_map,
+				generator: shadow_generator,
+			},
+		},
 	})
-
-	// const fly = integrate_nubs_to_control_fly_camera({
-	// 	nub_context: nubContext!,
-	// 	render_loop: renderLoop,
-
-	// 	fly: make_fly_camera({
-	// 		scene,
-	// 		position: [0, 0, 0],
-	// 	}),
-
-	// 	speeds_for_movement: {
-	// 		slow: 1 / 25,
-	// 		base: 1 / 5,
-	// 		fast: 1,
-	// 	},
-	
-	// 	speeds_for_looking_with_keys_and_stick: {
-	// 		slow: 1 / 200,
-	// 		base: 1 / 25,
-	// 		fast: 1 / 5,
-	// 	},
-	
-	// 	look_sensitivity: {
-	// 		stick: 1 / 100,
-	// 		pointer: 1 / 200,
-	// 	},
-	// })
 
 	const robot_puppet = new RobotPuppet({scene, position: [0,0,0]})
 	await robot_puppet.isLoaded
@@ -156,7 +131,6 @@ void async function main() {
 		character_camera,
 	})
 
-	// const {camera} = fly
 	camera.minZ = 1
 	camera.maxZ = 500
 	camera.fov = 1.2
@@ -174,12 +148,6 @@ void async function main() {
 			break
 
 		case "medium":
-			// {
-			// 	shadow_generator.autoCalcDepthBounds = true
-			// 	shadow_generator.bias = 0.01
-			// 	shadow_generator.normalBias = 0
-			// }
-
 			{
 				const pipeline = new DefaultRenderingPipeline("default", false, scene, [camera])
 
@@ -197,21 +165,10 @@ void async function main() {
 				pipeline.depthOfField.focusDistance = 100 * 1000
 				pipeline.depthOfField.focalLength = 50
 				pipeline.depthOfField.fStop = 1.4
-
-				// pipeline.imageProcessingEnabled = true
-				// pipeline.imageProcessing.vignetteEnabled = true
-				// pipeline.imageProcessing.vignetteWeight = 0.75
-				// pipeline.imageProcessing.toneMappingEnabled = true
-				// pipeline.imageProcessing.toneMappingType = TonemappingOperator.Photographic
-
-				// pipeline.grainEnabled = true
-				// pipeline.grain.intensity = 5
-				// pipeline.grain.animated = true
 			}
 
 			{
 				const ao_settings = 0.5
-				// const ao_settings = {ssaoRatio: 0.75, blurRatio: 0.75, combineRatio: 1}
 				const ao = new SSAO2RenderingPipeline("ssao", scene, ao_settings, [camera])
 				ao.radius = 5
 				ao.totalStrength = 0.5
@@ -219,7 +176,6 @@ void async function main() {
 				ao.maxZ = 600
 				ao.samples = 4
 				ao.minZAspect = 0.5
-				// ao.expensiveBlur = false;
 			}
 			break
 
@@ -254,15 +210,10 @@ void async function main() {
 		
 				pipeline.imageProcessing.toneMappingEnabled = true
 				pipeline.imageProcessing.toneMappingType = TonemappingOperator.Photographic
-		
-				// pipeline.grainEnabled = true
-				// pipeline.grain.intensity = 5
-				// pipeline.grain.animated = true
 			}
 		
 			{
 				const ao_settings = 0.75
-				// const ao_settings = {ssaoRatio: 0.75, blurRatio: 0.75, combineRatio: 1}
 				const ao = new SSAO2RenderingPipeline("ssao", scene, ao_settings, [camera])
 				ao.radius = 10
 				ao.totalStrength = 1.5
@@ -270,7 +221,6 @@ void async function main() {
 				ao.samples = 16
 				ao.maxZ = 600
 				ao.minZAspect = 0.5
-				// SSAOPipeline.expensiveBlur = true;
 			}
 			break
 	}
@@ -303,11 +253,12 @@ void async function main() {
 				const impulseForceDirection = new Vector3(
 					ray.ray!.direction!.x * 5,
 					ray.ray!.direction!.y * 5,
-					ray.ray!.direction!.z * 5)
-
+					ray.ray!.direction!.z * 5,
+				)
 				ray.pickedMesh.applyImpulse(
 					impulseForceDirection,
-					ray.pickedPoint!);
+					ray.pickedPoint!,
+				)
 			}
 			if (jump) {
 				character_capsule.jump()
