@@ -30,7 +30,7 @@ import {loadGlb} from "./utils/babylon/load-glb.js"
 import {RobotPuppet} from "./utils/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 import {toggleCameraView} from "./utils/toggle-camera-view.js"
-import {spawnPhysicsCube} from "./utils/spawn-physics-cube.js"
+import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
@@ -246,8 +246,10 @@ void async function main() {
 			const isLeftClick = detail.effect === "primary" && (detail as NubDetail.Key).pressed
 			const isRightClick = detail.effect === "secondary" && (detail as NubDetail.Key).pressed
 			if (isRightClick && ray.pickedPoint && ray.pickedMesh?.name !== "box") {
-				const normal = ray.getNormal(true)!
-				spawnPhysicsCube(scene, normal, ray.pickedPoint, boxMaterial)
+				const surface_normal = ray.getNormal(true)!
+				spawn_physics_cube_near_physics_point(
+					scene, surface_normal, ray.pickedPoint, boxMaterial
+				)
 			}
 			else if (isLeftClick && ray.pickedMesh?.name === "box") {
 				const impulseForceDirection = new Vector3(
