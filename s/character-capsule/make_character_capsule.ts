@@ -25,7 +25,8 @@ export function make_character_capsule({
 
 	let current_look = v2.zero()
 	let capsuleTransformNode = new TransformNode("capsule-node", scene)
-	
+	let robotCoasterParent = new TransformNode("capsule-node", scene)
+
 	const {
 		makeStandingCapsuleActive,
 		makeCrouchingCapsuleActive,
@@ -110,6 +111,26 @@ export function make_character_capsule({
 			activeCapsule!.rotationQuaternion = Quaternion
 				.RotationYawPitchRoll(x, 0, 0)
 			robot_puppet.setVerticalAim(y)
+
+			// code about aligning robot coaster to slope
+			robotCoasterParent.rotationQuaternion = Quaternion
+				.RotationYawPitchRoll(-x, 0, 0)
+			const ray = new Ray(new Vector3(activeCapsule!.position.x, activeCapsule!.position.y, activeCapsule!.position.z), Vector3.Down(), 1.8)
+			const pick = scene.pickWithRay(ray, predicate)
+			let slopeNormal = pick!.getNormal(true)!
+			if (pick?.pickedMesh) {
+				let direction = new Vector3(Math.cos(x), 0, Math.sin(x));
+				let right = Vector3.Cross(slopeNormal, direction).normalize()
+				direction = Vector3.Cross(right, slopeNormal).normalize()
+				const up = Vector3.Cross(direction, right).normalize()
+				robot_puppet.coaster!.rotationQuaternion = Quaternion
+					.RotationQuaternionFromAxis(right, up,direction)
+			}
+			if (robot_puppet.coaster!.parent != robotCoasterParent) {
+				robot_puppet.coaster!.parent = robotCoasterParent
+				robotCoasterParent.parent = capsuleTransformNode
+				robot_puppet.coaster!.position = new Vector3(0, -1, 0)
+			}
 		},
 	}
 }
