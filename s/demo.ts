@@ -35,6 +35,7 @@ import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
 import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
+import {Robot_puppet} from "./utils/robot-puppet2.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -87,8 +88,8 @@ void async function main() {
 		},
 	})
 
-	const robot_puppet = new RobotPuppet({scene, position: [0,0,0]})
-	await robot_puppet.isLoaded
+	const robot_puppet = new Robot_puppet(scene, [0,0,0])
+	await robot_puppet.is_loaded
 
 	const character_capsule = integrate_nubs_to_control_character_capsule({
 		nub_context: nubContext!,
@@ -107,17 +108,10 @@ void async function main() {
 			base: 1 / 25,
 			fast: 1 / 5,
 		},
-		capsuleTransformNode: make_character_capsule({
-			scene,
-			position: [0, 5, 0],
-			robot_puppet
-		}),
+		robot_puppet
 	})
 
 	const robot_upper = robot_puppet.upper!
-	const robot_root = robot_puppet.root!
-
-	robot_root.parent = character_capsule.capsuleTransformNode
 
 	const character_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
 	character_camera.ignoreParentScaling = true
@@ -263,16 +257,16 @@ void async function main() {
 				)
 			}
 			if (jump) {
-				character_capsule.jump()
+				robot_puppet.jump()
 			}
 			if (isLeftClick) {
-				character_capsule.shoot()
+				robot_puppet.shoot()
 			}
 			if (crouch) {
-				character_capsule.crouch()
+				robot_puppet.crouch()
 			}
 			if (crouchEnd) {
-				character_capsule.stand()
+				robot_puppet.stand()
 			}
 		})
 
