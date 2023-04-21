@@ -3,17 +3,17 @@ import {Scene} from "@babylonjs/core/scene.js"
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 import {loadGlb} from "./babylon/load-glb.js"
+import {Ray} from "@babylonjs/core/Culling/ray.js"
 import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
 import {V3, v3} from "@benev/toolbox/x/utils/v3.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
+import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
+import {Color3, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
-import {Color3, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
-import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon/flycam/utils/add_to_look_vector_but_cap_vertical_axis.js"
-import {Ray} from "@babylonjs/core/Culling/ray.js"
 import {create_laser_beams} from "../character-capsule/utils/create_laser_beams.js"
-import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
+import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon/flycam/utils/add_to_look_vector_but_cap_vertical_axis.js"
 
 const material = new StandardMaterial("capsule")
 material.alpha = 0.1
@@ -164,10 +164,30 @@ export class Robot_puppet {
 		})
 	}
 
+	#is_something_above() {
+		const active_capsule = this.#capsule
+		const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
+		const ray = new Ray(active_capsule.getAbsolutePosition(), Vector3.Up(), 1.5)
+		return this.#scene.pickWithRay(ray, predicate)?.hit
+	}
+
 	stand() {
-		this.#change_character_capsule({
-			capsule_height: 3,
-			robot_upper_y: 1.6,
-		})
+		if(!this.#is_something_above()) {
+			this.#change_character_capsule({
+				capsule_height: 3,
+				robot_upper_y: 1.6,
+			})
+		}
+		else {
+			const intervalId = setInterval(() => {
+				if(!this.#is_something_above()) {
+					this.#change_character_capsule({
+						capsule_height: 3,
+						robot_upper_y: 1.6,
+					})
+					clearInterval(intervalId)
+				}
+			}, 100)
+		}
 	}
 }
