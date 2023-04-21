@@ -10,8 +10,8 @@ import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 import {Color3, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 
+import {BlasterVFX} from "../utils/blaster-vfx.js"
 import {RobotPuppet} from "../utils/robot-puppet.js"
-import {create_laser_beams} from "./utils/create_laser_beams.js"
 import {active_capsule_manager} from "./utils/active_capsule_manager.js"
 
 
@@ -42,16 +42,37 @@ export function make_character_capsule({
 	laserMaterial.emissiveColor = Color3.Red()
 	let isSomethingAboveChecker: null | number = null
 
+	let blast = new BlasterVFX('test', {
+			cache:200
+	}, scene)
+
 	return {
 		capsuleTransformNode,
 		shoot() {
 			const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
 			const pick = scene.pickWithRay(shootRay)
 			if (pick?.hit) {
-				const laserBeams = create_laser_beams({pick, robotLeftGun, robotRightGun, scene, laserMaterial})
-				const removeLaserBeam = setTimeout(() =>
-					laserBeams.forEach(laserBeam => laserBeam.dispose()), 500)
-				return () => clearTimeout(removeLaserBeam)
+				let timer = 300
+				let last = Date.now()
+				let time = 0
+
+				const e = scene.onBeforeRenderObservable.add(() => {
+					const activeCapsule = getActiveCapsule()
+					blast.aimNode = robotRightGun
+					blast.aimNode.position = robotRightGun.position
+					blast.mesh.position = activeCapsule!.position
+					let delta = scene.getEngine().getDeltaTime()
+					time+=delta*0.001
+					robotRightGun.rotation.y = Math.sin(time*2.0)*0.05
+					robotRightGun.rotation.x = Math.cos(time) * 0.1
+					blast.run(delta)
+					let n = Date.now()
+					if(n-last>timer){
+						last = n
+					}
+				})
+				blast.fire()
+				e!.unregisterOnNextCall = true
 			}
 		},
 		jump() {
