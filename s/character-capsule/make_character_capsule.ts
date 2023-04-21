@@ -56,22 +56,19 @@ export function make_character_capsule({
 				let last = Date.now()
 				let time = 0
 
+				const activeCapsule = getActiveCapsule()
 				const e = scene.onBeforeRenderObservable.add(() => {
-					const activeCapsule = getActiveCapsule()
 					blast.aimNode = robotRightGun
 					blast.aimNode.position = robotRightGun.position
-					blast.mesh.position = activeCapsule!.position
 					let delta = scene.getEngine().getDeltaTime()
 					time+=delta*0.001
-					robotRightGun.rotation.y = Math.sin(time*2.0)*0.05
-					robotRightGun.rotation.x = Math.cos(time) * 0.1
 					blast.run(delta)
 					let n = Date.now()
 					if(n-last>timer){
 						last = n
 					}
 				})
-				blast.fire()
+				blast.fire(activeCapsule?.position!)
 				e!.unregisterOnNextCall = true
 			}
 		},
