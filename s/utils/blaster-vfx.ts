@@ -11,6 +11,7 @@ import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem
 
 import {createBlastTexture} from "./create-blast-texture.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
+import {createBlastDotTexture} from "./create-blastdot-texture.js"
 import {createConeBlastTexture} from "./create-coneblast-texture.js"
 
 export class BlasterVFX{
@@ -99,11 +100,11 @@ mesh: Mesh
 			this.sps.addShape(sparkPlane, args.cache)
 			sparkPlane.dispose()
 
-			// let splashDotMat = createBlastDotTexture(this.name+':standardDot', {res:256}, scene)
-			// let splashDotPlane = Mesh.CreatePlane("splashDotPlane", 0, scene)
-			// splashDotPlane.material = splashDotMat
-			// // this.sps.addShape(splashDotPlane, args.cache)
-			// splashDotPlane.dispose()
+			let splashDotMat = createBlastDotTexture(this.name+':standardDot', {res:256}, scene)
+			let splashDotPlane = Mesh.CreatePlane("splashDotPlane", 1, scene)
+			splashDotPlane.material = splashDotMat
+			this.sps.addShape(splashDotPlane, args.cache)
+			splashDotPlane.dispose()
 
 			this.mesh = this.sps.buildMesh()
 			
@@ -288,7 +289,7 @@ mesh: Mesh
 			this.subEmit(5, {
 					position:p.position,
 					distance:p.distanceDelta
-			})     
+			})
 			this.sps.recycleParticle(p)
 	}
 
@@ -303,7 +304,7 @@ mesh: Mesh
 			}
 	}
 
-	fire(){
+	fire(pos){
 			//MuzzleFlash        
 			let p = this.sps.particles[this.getCurrentSpawn(0)]
 			p.type = 1
@@ -367,7 +368,7 @@ mesh: Mesh
 			p = this.sps.particles[this.getCurrentSpawn(2)]
 			p.type = 2
 			p.scale = new Vector3(0.5,0.5,0.2)
-			p.position = new Vector3(0,0,0)
+			p.position = pos
 			p.direction = this.aimNode!.forward.clone()
 			p.speed = 0.5
 			p.range = 600
@@ -425,7 +426,7 @@ mesh: Mesh
 							p.animationSpeed = 50
 							p.lastFrame = p.pow2Count*p.pow2Count
 							p.animationStep = 1/(p.lastFrame+1)
-							p.parent = data.parentId         
+							p.parent = data.parentId
 					break;
 					case 4:
 							for(let i=0; i<count; i++){
@@ -446,8 +447,8 @@ mesh: Mesh
 							}
 					break;
 					case 5:
-									p = this.sps.particles[this.getCurrentSpawn(4)]
-									p.type = 5            
+									p = this.sps.particles[this.getCurrentSpawn(5)]
+									p.type = 5
 									p.scale = new Vector3(0.3,0.3,0.3).scale(data.distance)
 									p.position = data.position.clone()
 									p.timer = 0
