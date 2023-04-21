@@ -42,6 +42,7 @@ export async function load_level_and_setup_meshes_for_collision({
 			physics_impostor_settings,
 			scene
 		)
+		mesh.shootable = true
 	}
 
 	for (const mesh of meshes) {
