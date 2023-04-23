@@ -244,9 +244,9 @@ mesh: Mesh
 									p.uvs.x = xOff
 									p.uvs.y = yOff
 									p.uvs.z = xOff + p.textureCellSize
-									p.uvs.w = yOff + p.textureCellSize                    
+									p.uvs.w = yOff + p.textureCellSize
 							break;
-					}           
+					}
 			}
 
 			this.sps.initParticles()
@@ -305,7 +305,7 @@ mesh: Mesh
 	}
 
 	fire(pos){
-			//MuzzleFlash        
+			//MuzzleFlash
 			let p = this.sps.particles[this.getCurrentSpawn(0)]
 			p.type = 1
 			p.scale = new Vector3(0.2,0.2,0.2)
@@ -408,16 +408,16 @@ mesh: Mesh
 							p.animationStep = 1/(p.lastFrame+1)
 					break;
 					//Frontal Cone
-					case 3:            
-							p = this.sps.particles[this.getCurrentSpawn(3)]               
-							p.type = 3            
+					case 3:
+							p = this.sps.particles[this.getCurrentSpawn(3)]
+							p.type = 3
 							p.scale = new Vector3(0.3,0.3,0.3)
 							p.position = data.position
 							p.scaleUp = 1.12
 							p.scaleMax = 0.8
 							p.timer = 0
 							p.pow2Count = 3
-							p.textureCellSize = 1/p.pow2Count 
+							p.textureCellSize = 1/p.pow2Count
 							p.frameID = 0
 							p.uvs.x = 0.0
 							p.uvs.y = 0.0
@@ -430,8 +430,8 @@ mesh: Mesh
 					break;
 					case 4:
 							for(let i=0; i<count; i++){
-									p = this.sps.particles[this.getCurrentSpawn(4)]               
-									p.type = 4            
+									p = this.sps.particles[this.getCurrentSpawn(4)]
+									p.type = 4
 									p.scale = (new Vector3(0.5,0.5,0.5)).scale(((Math.random()*0.5)+0.5))
 									p.position = data.position.clone()
 									p.scaleDown = 0.98-(Math.random()*0.2)
