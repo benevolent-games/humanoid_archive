@@ -34,6 +34,6 @@ export async function spawn_physics_cube_near_physics_point(
 
 	box.position = new_position
 	box.material = material
-
+	box.shootable = true
 	return box
 }
