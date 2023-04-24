@@ -370,7 +370,7 @@ mesh: Mesh
 			p.scale = new Vector3(0.5,0.5,0.2)
 			p.position = pos
 			p.direction = this.aimNode!.forward.clone()
-			p.speed = 0.5
+			p.speed = 2
 			p.range = 600
 			p.scaleUp = 1.2
 			p.scaleMax = 1.2
@@ -389,7 +389,7 @@ mesh: Mesh
 			let p
 			switch(type){
 					case 1:
-							p = this.sps.particles[this.getCurrentSpawn(0)]  
+							p = this.sps.particles[this.getCurrentSpawn(0)]
 							p.type = 1
 							p.scale = new Vector3(0.5,0.5,0.5)
 							p.position = data.position.clone()
