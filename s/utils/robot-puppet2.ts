@@ -26,13 +26,17 @@ export class Robot_puppet {
 	starting_position: V3 = v3.zero()
 	current_look: V2 = v2.zero()
 	is_loaded = this.#loadGlb()
-	#capsule: Mesh
+	capsule: Mesh
+	#coater_transform_node: TransformNode
+	#predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 
 
 	constructor(scene: Scene, position: V3) {
 		this.#scene = scene
 		this.starting_position = position
-		this.#capsule = this.#makeCapsule(3, this.starting_position)
+		this.capsule = this.#makeCapsule(3, this.starting_position)
+
+		this.#coater_transform_node = new TransformNode('robot-coaster', scene)
 
 		this.is_loaded.then((m) => {
 			m.meshes.forEach(
@@ -43,7 +47,7 @@ export class Robot_puppet {
 			)
 			const root = this.root as TransformNode
 			root.position = new Vector3(0,-0.8,0)
-			root.parent = this.#capsule
+			root.parent = this.capsule
 			})
 	}
 
@@ -57,13 +61,13 @@ export class Robot_puppet {
 			capsule_height: number
 			robot_upper_y: number
 		}) {
-		const {x, y, z} = this.#capsule.position
-		this.#capsule.dispose(true)
+		const {x, y, z} = this.capsule.position
+		this.capsule.dispose(true)
 		const standing_capsule = this.#makeCapsule(capsule_height, [x, y, z])
 		standing_capsule.physicsImpostor?.physicsBody.setAngularFactor(0)
-		this.#capsule = standing_capsule
-		this.root!.parent = this.#capsule
-		this.upper!.position = new Vector3(0, robot_upper_y, 0)
+		this.capsule = standing_capsule
+		this.root!.parent = this.capsule
+		this.upper!.position.y = robot_upper_y
 	}
 
 	#makeCapsule(height: number, position: V3) {
@@ -106,19 +110,17 @@ export class Robot_puppet {
 	move(vector: V2) {
 		const [x, z] = vector
 		const translation = new Vector3(x, 0, z)
-		const activeCapsule = this.#capsule
 
 		const translation_considering_rotation = translation
-			.applyRotationQuaternion(activeCapsule!.absoluteRotationQuaternion)
-		activeCapsule!.position.addInPlace(translation_considering_rotation)
+			.applyRotationQuaternion(this.capsule.absoluteRotationQuaternion)
+		this.capsule.position.addInPlace(translation_considering_rotation)
 	}
 
 	look(vector: V2) {
 		const [x, y] = this.current_look
-		const activeCapsule = this.#capsule
 		this.current_look = add_to_look_vector_but_cap_vertical_axis(this.current_look, vector)
 
-		activeCapsule!.rotationQuaternion = Quaternion
+		this.capsule.rotationQuaternion = Quaternion
 			.RotationYawPitchRoll(x, 0, 0)
 		this.setVerticalAim(y)
 	}
@@ -142,18 +144,14 @@ export class Robot_puppet {
 	}
 
 	jump() {
-		const activeCapsule = this.#capsule
 		const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
-		const ray = new Ray(new Vector3(
-			activeCapsule.position.x,
-			activeCapsule.position.y,
-			activeCapsule.position.z), Vector3.Down(), 1.8)
+		const ray = new Ray(this.capsule.position, Vector3.Down(), 1.8)
 		const pick = this.#scene.pickWithRay(ray, predicate)
 
 		if(pick?.hit)
-			activeCapsule.physicsImpostor?.applyImpulse(
+			this.capsule.physicsImpostor?.applyImpulse(
 				new Vector3(0, 20, 0),
-				activeCapsule.getAbsolutePosition()
+				this.capsule.getAbsolutePosition()
 			)
 	}
 
@@ -165,9 +163,8 @@ export class Robot_puppet {
 	}
 
 	#is_something_above() {
-		const active_capsule = this.#capsule
 		const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
-		const ray = new Ray(active_capsule.getAbsolutePosition(), Vector3.Up(), 1.5)
+		const ray = new Ray(this.capsule.getAbsolutePosition(), Vector3.Up(), 1.5)
 		return this.#scene.pickWithRay(ray, predicate)?.hit
 	}
 
@@ -188,6 +185,31 @@ export class Robot_puppet {
 					clearInterval(intervalId)
 				}
 			}, 100)
+		}
+	}
+
+	align_with_slope() {
+		const [x, y] = this.current_look
+
+		this.#coater_transform_node.rotationQuaternion = Quaternion
+			.RotationYawPitchRoll(-x, 0, 0)
+
+		const ray = new Ray(this.capsule.position ,Vector3.Down(), 1.8)
+		const pick = this.#scene.pickWithRay(ray, this.#predicate)
+		let slopeNormal = pick!.getNormal(true)!
+
+		if (pick?.pickedMesh) {
+			let direction = new Vector3(Math.cos(x), 0, Math.sin(x));
+			let right = Vector3.Cross(slopeNormal, direction).normalize()
+			direction = Vector3.Cross(right, slopeNormal).normalize()
+			const up = Vector3.Cross(direction, right).normalize()
+			this.coaster!.rotationQuaternion = Quaternion
+				.RotationQuaternionFromAxis(right, up,direction)
+		}
+		if (this.coaster!.parent !== this.#coater_transform_node) {
+			this.coaster!.parent = this.#coater_transform_node
+			this.#coater_transform_node.parent = this.capsule
+			this.coaster!.position = new Vector3(0, -1, 0)
 		}
 	}
 }

@@ -54,6 +54,8 @@ export function integrate_nubs_to_control_character_capsule({
 				look_sensitivity.stick,
 			)
 		)
+
+		robot_puppet.align_with_slope()
 	}
 
 	render_loop.add(simulate)
