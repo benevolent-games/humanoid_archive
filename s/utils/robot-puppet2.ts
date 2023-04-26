@@ -28,6 +28,7 @@ export class Robot_puppet {
 	is_loaded = this.#loadGlb()
 	capsule: Mesh
 	#coater_transform_node: TransformNode
+	#capsule_transform_node: TransformNode
 	#predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 
 
@@ -37,7 +38,8 @@ export class Robot_puppet {
 		this.capsule = this.#makeCapsule(3, this.starting_position)
 
 		this.#coater_transform_node = new TransformNode('robot-coaster', scene)
-
+		this.#capsule_transform_node = new TransformNode('capsule', scene)
+		this.#capsule_transform_node.parent = this.capsule
 		this.is_loaded.then((m) => {
 			m.meshes.forEach(
 				(mesh) => {
@@ -64,9 +66,11 @@ export class Robot_puppet {
 		const {x, y, z} = this.capsule.position
 		this.capsule.dispose(true)
 		const standing_capsule = this.#makeCapsule(capsule_height, [x, y, z])
-		standing_capsule.physicsImpostor?.physicsBody.setAngularFactor(0)
+
 		this.capsule = standing_capsule
+		this.#capsule_transform_node.parent = standing_capsule
 		this.root!.parent = this.capsule
+		this.upper!.parent = this.#capsule_transform_node
 		this.upper!.position.y = robot_upper_y
 	}
 
@@ -158,7 +162,7 @@ export class Robot_puppet {
 	crouch() {
 		this.#change_character_capsule({
 			capsule_height: 2.2,
-			robot_upper_y: 1.2,
+			robot_upper_y: 0.4,
 		})
 	}
 
@@ -172,7 +176,7 @@ export class Robot_puppet {
 		if(!this.#is_something_above()) {
 			this.#change_character_capsule({
 				capsule_height: 3,
-				robot_upper_y: 1.6,
+				robot_upper_y: 0.8,
 			})
 		}
 		else {
@@ -180,7 +184,7 @@ export class Robot_puppet {
 				if(!this.#is_something_above()) {
 					this.#change_character_capsule({
 						capsule_height: 3,
-						robot_upper_y: 1.6,
+						robot_upper_y: 0.8,
 					})
 					clearInterval(intervalId)
 				}
@@ -208,7 +212,7 @@ export class Robot_puppet {
 		}
 		if (this.coaster!.parent !== this.#coater_transform_node) {
 			this.coaster!.parent = this.#coater_transform_node
-			this.#coater_transform_node.parent = this.capsule
+			this.#coater_transform_node.parent = this.#capsule_transform_node
 			this.coaster!.position = new Vector3(0, -1, 0)
 		}
 	}
