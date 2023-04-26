@@ -29,7 +29,7 @@ export class Robot_puppet {
 	capsule: Mesh
 	#coater_transform_node: TransformNode
 	#capsule_transform_node: TransformNode
-	#predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
+	#is_base_mesh = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 
 
 	constructor(scene: Scene, position: V3) {
@@ -65,10 +65,10 @@ export class Robot_puppet {
 		}) {
 		const {x, y, z} = this.capsule.position
 		this.capsule.dispose(true)
-		const standing_capsule = this.#makeCapsule(capsule_height, [x, y, z])
+		const new_capsule = this.#makeCapsule(capsule_height, [x, y, z])
 
-		this.capsule = standing_capsule
-		this.#capsule_transform_node.parent = standing_capsule
+		this.capsule = new_capsule
+		this.#capsule_transform_node.parent = new_capsule
 		this.root!.parent = this.capsule
 		this.upper!.parent = this.#capsule_transform_node
 		this.upper!.position.y = robot_upper_y
@@ -148,9 +148,8 @@ export class Robot_puppet {
 	}
 
 	jump() {
-		const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 		const ray = new Ray(this.capsule.position, Vector3.Down(), 1.8)
-		const pick = this.#scene.pickWithRay(ray, predicate)
+		const pick = this.#scene.pickWithRay(ray, this.#is_base_mesh)
 
 		if(pick?.hit)
 			this.capsule.physicsImpostor?.applyImpulse(
@@ -167,9 +166,8 @@ export class Robot_puppet {
 	}
 
 	#is_something_above() {
-		const predicate = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 		const ray = new Ray(this.capsule.getAbsolutePosition(), Vector3.Up(), 1.5)
-		return this.#scene.pickWithRay(ray, predicate)?.hit
+		return this.#scene.pickWithRay(ray, this.#is_base_mesh)?.hit
 	}
 
 	stand() {
@@ -199,7 +197,7 @@ export class Robot_puppet {
 			.RotationYawPitchRoll(-x, 0, 0)
 
 		const ray = new Ray(this.capsule.position ,Vector3.Down(), 1.8)
-		const pick = this.#scene.pickWithRay(ray, this.#predicate)
+		const pick = this.#scene.pickWithRay(ray, this.#is_base_mesh)
 		let slopeNormal = pick!.getNormal(true)!
 
 		if (pick?.pickedMesh) {
