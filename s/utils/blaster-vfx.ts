@@ -477,5 +477,26 @@ mesh: Mesh
 			}
 			return s
 	}
-
+	shootBlaster(
+		blast: BlasterVFX,
+		scene: Scene,
+		robotRightGun: AbstractMesh,
+		activeCapsule: Mesh) {
+		let timer = 300
+		let last = Date.now()
+		let time = 0
+		const e = scene.onBeforeRenderObservable.add(() => {
+			blast.aimNode = robotRightGun
+			blast.aimNode.position = robotRightGun.position
+			let delta = scene.getEngine().getDeltaTime()
+			time+=delta*0.001
+			blast.run(delta)
+			let n = Date.now()
+			if(n-last>timer){
+				last = n
+			}
+		})
+		blast.fire(activeCapsule?.position!)
+		e!.unregisterOnNextCall = true
+	}
 }
