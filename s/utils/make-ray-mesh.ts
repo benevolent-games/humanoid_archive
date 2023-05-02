@@ -22,8 +22,10 @@ export function makeRayMesh(org: Vector3, dest: Vector3, sparkMesh: any, orbMesh
 	spark1.registerBeforeRender(function () {
 		orb1.visibility -= 0.015
 		orb2.visibility -= 0.015
-		spark1.visibility -= 0.030
-		if (spark1.visibility <= 0) {
+		spark1.visibility -= 0.045
+		orb1.position = org
+
+		if (orb2.visibility <= 0) {
 			orb1.dispose()
 			orb2.dispose()
 			spark1.dispose()

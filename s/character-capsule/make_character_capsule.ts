@@ -12,8 +12,8 @@ import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 
 import {BlasterVFX} from "../utils/blaster-vfx.js"
 import {RobotPuppet} from "../utils/robot-puppet.js"
+import {setupRaligunVFX} from "../utils/setup-railgun-vfx.js"
 import {active_capsule_manager} from "./utils/active_capsule_manager.js"
-
 
 export function make_character_capsule({
 		scene, position, robot_puppet
@@ -41,36 +41,29 @@ export function make_character_capsule({
 	const laserMaterial = new StandardMaterial("laserMaterial", scene)
 	laserMaterial.emissiveColor = Color3.Red()
 	let isSomethingAboveChecker: null | number = null
+	let activeWeapon = 0
 
 	let blast = new BlasterVFX('test', {
 			cache:200
 	}, scene)
+	const railgun = setupRaligunVFX(scene)
 
 	return {
 		capsuleTransformNode,
 		shoot() {
-			const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
-			const pick = scene.pickWithRay(shootRay)
+			// const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
+			// const pick = scene.pickWithRay(shootRay)
+			const engine = scene.getEngine();
+			const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2);
 			if (pick?.hit) {
-				let timer = 300
-				let last = Date.now()
-				let time = 0
-
-				const activeCapsule = getActiveCapsule()
-				const e = scene.onBeforeRenderObservable.add(() => {
-					blast.aimNode = robotRightGun
-					blast.aimNode.position = robotRightGun.position
-					let delta = scene.getEngine().getDeltaTime()
-					time+=delta*0.001
-					blast.run(delta)
-					let n = Date.now()
-					if(n-last>timer){
-						last = n
-					}
-				})
-				blast.fire(activeCapsule?.position!)
-				e!.unregisterOnNextCall = true
+				const activeCapsule = getActiveCapsule()!
+				if (activeWeapon === 0) {
+					blast.shootBlaster(blast, scene, robotRightGun, activeCapsule)
+				} else railgun.shootRailgun(robotRightGun.getAbsolutePosition(), pick.pickedPoint!)
 			}
+		},
+		switchWeapon() {
+			activeWeapon === 0 ? activeWeapon = 1 : activeWeapon = 0
 		},
 		jump() {
 			const activeCapsule = getActiveCapsule()

@@ -1,10 +1,11 @@
-import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
-import {Texture} from "@babylonjs/core/Materials/Textures/texture.js"
-import {Vector3} from "@babylonjs/core/Maths/math.js"
-import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
-import {VertexData} from "@babylonjs/core/Meshes/mesh.vertexData.js"
-import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {Scene} from "@babylonjs/core/scene.js"
+import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
+import {Vector3} from "@babylonjs/core/Maths/math.js"
+import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
+import {VertexData} from "@babylonjs/core/Meshes/mesh.vertexData.js"
+import {Texture} from "@babylonjs/core/Materials/Textures/texture.js"
+import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
+
 import {makeRayMesh} from "./make-ray-mesh.js"
 
 export function setupRaligunVFX(scene: Scene) {
@@ -29,10 +30,13 @@ export function setupRaligunVFX(scene: Scene) {
 
 	sparkMesh.lookAt(Vector3.UpReadOnly)
 
+	sparkMesh.isVisible = false
+	orbMesh.isVisible = false
+
 	orbMesh.billboardMode = Mesh.BILLBOARDMODE_ALL
 	
 	return {
-		shootRailgun(robotRightGunPosition, pickedPoint) {
+		shootRailgun(robotRightGunPosition: Vector3, pickedPoint: Vector3) {
 			makeRayMesh(robotRightGunPosition, pickedPoint, sparkMesh, orbMesh, scene)
 		}
 	}

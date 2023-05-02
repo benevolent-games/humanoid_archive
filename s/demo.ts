@@ -21,7 +21,7 @@ import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/cascadedSh
 import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
 
-import {NubDetail, NubEffectEvent} from "@benev/nubs"
+import {NubCauseEvent, NubDetail, NubEffectEvent} from "@benev/nubs"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
 import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/flycam/integrate_nubs_to_control_fly_camera.js"
@@ -234,6 +234,13 @@ void async function main() {
 
 		return material
 	})()
+
+	NubCauseEvent.target(window)
+		.listen(({detail}) => {
+			const switchWeapon = detail.cause === "KeyU" && (detail as NubDetail.Key).pressed
+			if (switchWeapon)
+				character_capsule.switchWeapon()
+	})
 
 	NubEffectEvent.target(window)
 		.listen(({detail}) => {
