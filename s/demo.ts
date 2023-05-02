@@ -25,14 +25,13 @@ import {NubDetail, NubEffectEvent} from "@benev/nubs"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 
 import {loadGlb} from "./utils/babylon/load-glb.js"
+import {Robot_puppet} from "./robot_puppet/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 import {toggleCameraView} from "./utils/toggle-camera-view.js"
-import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
-import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
+import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
-import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
-import {Robot_puppet} from "./utils/robot-puppet2.js"
+import {integrate_nubs_to_control_character_capsule} from "./robot_puppet/integrate_nubs_to_control_character_capsule.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()

@@ -1,12 +1,12 @@
 
+import {V2} from "@benev/nubs/x/tools/v2.js"
 import {NubContext, NubEffectEvent} from "@benev/nubs"
 import {Speeds} from "@benev/toolbox/x/trajectory/types/speeds.js"
-import {make_character_capsule} from "./make_character_capsule.js"
 import {add_user_pointer_movements_to_look} from "@benev/toolbox/x/babylon/flycam/utils/add_user_pointer_movements_to_look.js"
 import {get_user_look_trajectory_from_keys_and_stick} from "@benev/toolbox/x/babylon/flycam/utils/get_user_look_trajectory_from_keys_and_stick.js"
 import {get_user_move_trajectory_from_keys_and_stick} from "@benev/toolbox/x/babylon/flycam/utils/get_user_move_trajectory_from_keys_and_stick.js"
-import {Robot_puppet} from "../utils/robot-puppet2.js"
-import {V2} from "@benev/nubs/x/tools/v2.js"
+
+import {Robot_puppet} from "./robot-puppet.js"
 
 export function integrate_nubs_to_control_character_capsule({
 		robot_puppet, look_sensitivity,

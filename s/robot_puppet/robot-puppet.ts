@@ -1,18 +1,18 @@
 
 import {Scene} from "@babylonjs/core/scene.js"
-import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
-
-import {loadGlb} from "./babylon/load-glb.js"
 import {Ray} from "@babylonjs/core/Culling/ray.js"
-import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
-import {V3, v3} from "@benev/toolbox/x/utils/v3.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 import {Color3, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {PhysicsImpostor} from "@babylonjs/core/Physics/v1/physicsImpostor.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
-import {create_laser_beams} from "../character-capsule/utils/create_laser_beams.js"
+
+import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
+import {V3, v3} from "@benev/toolbox/x/utils/v3.js"
+import {loadGlb} from "../utils/babylon/load-glb.js"
+import {create_laser_beams} from "./create_laser_beams.js"
 import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon/flycam/utils/add_to_look_vector_but_cap_vertical_axis.js"
 
 const material = new StandardMaterial("capsule")
