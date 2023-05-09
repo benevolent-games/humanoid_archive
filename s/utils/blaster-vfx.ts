@@ -1,11 +1,11 @@
 import {Scene} from "@babylonjs/core/scene.js"
 import {Ray} from "@babylonjs/core/Culling/ray.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
-import {Vector3} from "@babylonjs/core/Maths/math.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
 import {PickingInfo} from "@babylonjs/core/Collisions/pickingInfo.js"
 import {Texture} from "@babylonjs/core/Materials/Textures/texture.js"
+import {Matrix, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem.js"
 
@@ -162,10 +162,15 @@ mesh: Mesh
 									p.position.addInPlace(p.direction.scale(p.speed))
 									p.distance+=p.speed
 									p.speed *= p.drag
-									p.direction.subtractInPlace(Vector3.Up().scale(p.drop))
-									p.rotation.x = -p.direction.y
-									p.rotation.y =  p.direction.x
-									
+									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
+									const pitchAngle = Math.atan2(p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
+									const rollAngle = Math.atan2(p.direction.y, p.direction.x)
+									let matrix = Matrix.RotationYawPitchRoll(
+										yawAngle,
+										pitchAngle,
+										0
+									)
+									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix)
 									let d = 1.0-(p.distance/p.range)
 									if(d<0){
 											return this.sps.recycleParticle(p)
@@ -288,7 +293,8 @@ mesh: Mesh
 			})
 			this.subEmit(5, {
 					position:p.position,
-					distance:p.distanceDelta
+					distance: p.distanceDelta,
+					direction: p.direction
 			})
 			this.sps.recycleParticle(p)
 	}
@@ -449,8 +455,9 @@ mesh: Mesh
 					case 5:
 									p = this.sps.particles[this.getCurrentSpawn(5)]
 									p.type = 5
-									p.scale = new Vector3(0.3,0.3,0.3).scale(data.distance)
+									p.scale = new Vector3(0.3, 0.3, 0.3).scale(data.distance)
 									p.position = data.position.clone()
+									p.direction = data.direction
 									p.timer = 0
 									p.pow2Count = 3
 									p.textureCellSize = 1/p.pow2Count 
@@ -461,7 +468,16 @@ mesh: Mesh
 									p.uvs.w = p.textureCellSize
 									p.animationSpeed = 3000
 									p.lastFrame = p.pow2Count*p.pow2Count
-									p.animationStep = 1/(p.lastFrame+1)
+									p.animationStep = 1 / (p.lastFrame + 1)
+									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
+									const pitchAngle = Math.atan2(p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
+									const rollAngle = Math.atan2(p.direction.y, p.direction.x)
+									let matrix = Matrix.RotationYawPitchRoll(
+										yawAngle,
+										pitchAngle,
+										0
+									)
+									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix)
 					break;
 			}
 	}
