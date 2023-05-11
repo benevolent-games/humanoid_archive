@@ -15,7 +15,7 @@ import {createBlastDotTexture} from "./create-blastdot-texture.js"
 import {createConeBlastTexture} from "./create-coneblast-texture.js"
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
-export class BlasterVFX{
+export class RailgunVFX{
 name: string
 args: any
 scene: Scene
@@ -48,7 +48,7 @@ mesh: Mesh
 			blastCone.rotation.x = Math.PI*0.5
 			blastCone.bakeCurrentTransformIntoVertices()
 			this.blastConeMat = createConeBlastTexture('standard:blastCone', {res:512}, scene)
-			blastCone.material = this.blastConeMat    
+			blastCone.material = this.blastConeMat
 			this.sps.addShape(blastCone, args.cache)
 		
 			let bulletShape = MeshBuilder.CreateRibbon('bullet', {
@@ -134,7 +134,7 @@ mesh: Mesh
 							if(this.aimNode)
 								p.position = this.aimNode.getAbsolutePosition()
 							break;
-						case 1:
+							case 1 :
 									p.timer += this.delta
 									aTime = Math.min(p.timer/p.animationSpeed, 1)
 									xOff = Math.floor(aTime/p.animationStep)
@@ -163,9 +163,10 @@ mesh: Mesh
 									}
 									p.position.addInPlace(p.direction.scale(p.speed))
 									p.distance+=p.speed
-									p.speed *= p.drag
+							p.speed *= p.drag
+							
 									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
-									const pitchAngle = Math.atan2(p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
+									const pitchAngle = Math.atan2(-p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
 									const rollAngle = Math.atan2(p.direction.y, p.direction.x)
 									let matrix = Matrix.RotationYawPitchRoll(
 										yawAngle,
@@ -179,9 +180,9 @@ mesh: Mesh
 									}
 									p.distanceDelta = d
 									p.uvs.x = p.uvs.z = 0.001+(0.999*(1.0-d))
-									let d2 = (d*0.6)+0.01
+									let d2 = (d * 0.6) + 0.01
 									let d3 = (d*0.8)+0.02
-									p.scale = new Vector3(d2,d2,d3)
+									p.scale = new Vector3(d2,d2,p.distance)
 									
 									if(!this.testCollisions(p, Quaternion.FromRotationMatrix(matrix))){
 											p.subEmitTick++
@@ -224,6 +225,7 @@ mesh: Mesh
 									
 									p.position = pp.position.clone()
 									p.rotation = pp.rotation.clone()
+									p.rotationQuaternion = pp.rotationQuaternion.clone()
 
 							break
 							case 4:
@@ -234,6 +236,7 @@ mesh: Mesh
 									p.speed *= p.drag
 									p.position.addInPlace(p.direction.scale(p.speed))
 									p.direction.subtractInPlace(Vector3.Up().scale(p.drop))
+						
 							break;
 							case 5:
 									p.timer += this.delta
@@ -288,8 +291,8 @@ mesh: Mesh
 					parentId : p.idx,
 					position : point,
 					speed : p.speed,
-					direction: normal,
-					rotation
+				direction: normal,
+						rotation: rotation
 			}, (Math.random()*3)+6)
 			this.subEmit(1, {
 					position:p.position
@@ -297,7 +300,7 @@ mesh: Mesh
 			this.subEmit(5, {
 					position:p.position,
 					distance: p.distanceDelta,
-					direction: p.direction
+				direction: p.direction,
 			})
 			this.sps.recycleParticle(p)
 	}
@@ -313,15 +316,16 @@ mesh: Mesh
 			}
 	}
 
-	fire(robotRightGun: AbstractMesh) {
-			const gunPosition = robotRightGun.getAbsolutePosition()
-			const gunForward = robotRightGun.forward
+	fire(robotRightGun: AbstractMesh, distance: number) {
+		
+		const gunPosition = robotRightGun.getAbsolutePosition()
+		const gunForward = robotRightGun.forward
 			//MuzzleFlash
 			let p = this.sps.particles[this.getCurrentSpawn(0)]
 			p.type = 1
 			p.scale = new Vector3(0.2,0.2,0.2)
 			p.rotation = this.aimNode!.rotation.clone()
-			p.position = new Vector3(gunPosition.x, gunPosition.y, gunPosition.z)
+			p.position = this.aimNode!.position.clone().multiply(new Vector3(0,0,0.05))
 			p.scaleUp = 1.1
 			p.scaleMax = 0.6
 			p.timer = 0
@@ -340,7 +344,7 @@ mesh: Mesh
 			p.type = 1
 			p.scale = new Vector3(0.1,0.1,0.1)
 			p.rotation = this.aimNode!.rotation.clone()
-			p.position =  new Vector3(gunPosition.x, gunPosition.y, gunPosition.z)
+			p.position =  this.aimNode!.forward.clone().multiply(new Vector3(0,0,0.1))
 			p.scaleUp = 1.1
 			p.scaleMax = 0.5
 			p.timer = 0
@@ -355,7 +359,7 @@ mesh: Mesh
 			p.lastFrame = p.pow2Count*p.pow2Count
 			p.animationStep = 1/(p.lastFrame+1)
 			
-		// 	//ConeBlast
+			//ConeBlast
 			p = this.sps.particles[this.getCurrentSpawn(1)]
 			p.type = 1
 			p.scale = new Vector3(0.2,0.2,0.2)
@@ -375,13 +379,13 @@ mesh: Mesh
 			p.lastFrame = p.pow2Count*p.pow2Count
 			p.animationStep = 1/(p.lastFrame+1)
 
-		// 	//Bullet
+			//Bullet
 			p = this.sps.particles[this.getCurrentSpawn(2)]
 			p.type = 2
-			p.scale = new Vector3(0.5,0.5,0.2)
+			p.scale = new Vector3(0.5, 0.5, 0.2)
 			p.position = new Vector3(gunPosition.x, gunPosition.y, gunPosition.z)
 			p.direction = gunForward.clone()
-			p.speed = 2
+			p.speed = distance / 5
 			p.range = 600
 			p.scaleUp = 1.2
 			p.scaleMax = 1.2
@@ -454,8 +458,8 @@ mesh: Mesh
 									p.direction.x += (Math.sin(this.time*mr))
 									p.direction.y += (Math.cos(this.time*mr))
 									p.direction.z += (Math.sin(this.time*mr))
-									p.direction = p.direction.normalize()
-									p.rotationQuaternion = data.rotation
+								p.direction = p.direction.normalize()
+								p.rotationQuaternion = data.rotation
 							}
 					break;
 					case 5:
@@ -492,24 +496,26 @@ mesh: Mesh
 			let s = this.spawnIDs[q]
 			if(increment){
 					this.spawnIDs[q]++
-			}        
+			}
 			if(s>=this.args.cache*(q+1)){
 					this.spawnIDs[q] = this.args.cache * q
 					s = this.args.cache * q
 			}
 			return s
 	}
-	shootBlaster(
-		blast: BlasterVFX,
+	shootRailgun(
+		blast: RailgunVFX,
 		scene: Scene,
 		robotRightGun: AbstractMesh,
-		activeCapsule: Mesh) {
+		activeCapsule: Mesh,
+		distance: number) {
 		let timer = 300
 		let last = Date.now()
 		let time = 0
+
 		const e = scene.onBeforeRenderObservable.add(() => {
 			blast.aimNode = new TransformNode(this.name+":an", scene)
-			blast.aimNode!.position = robotRightGun.getAbsolutePosition()
+			blast.aimNode.position = robotRightGun.getAbsolutePosition()
 			let delta = scene.getEngine().getDeltaTime()
 			time+=delta*0.001
 			blast.run(delta)
@@ -518,7 +524,7 @@ mesh: Mesh
 				last = n
 			}
 		})
-		blast.fire(robotRightGun)
+		blast.fire(robotRightGun, distance)
 		e!.unregisterOnNextCall = true
 	}
 }

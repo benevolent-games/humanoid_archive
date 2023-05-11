@@ -18,7 +18,7 @@ export function createBlastTexture(
 	diffuse.refreshRate = 1
 	diffuse.setFloat('ratio', 1)
 
-	var mat = new StandardMaterial(name+'Mat', scene)
+	let mat = new StandardMaterial(name+'Mat', scene)
 	mat.backFaceCulling = false
 	mat.diffuseTexture = diffuse
 	mat.emissiveTexture = diffuse

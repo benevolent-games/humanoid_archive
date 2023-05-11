@@ -11,8 +11,8 @@ import {Color3, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 
 import {BlasterVFX} from "../utils/blaster-vfx.js"
+import {RailgunVFX} from "../utils/railgun-vfx.js"
 import {RobotPuppet} from "../utils/robot-puppet.js"
-import {setupRaligunVFX} from "../utils/setup-railgun-vfx.js"
 import {active_capsule_manager} from "./utils/active_capsule_manager.js"
 
 export function make_character_capsule({
@@ -43,10 +43,12 @@ export function make_character_capsule({
 	let isSomethingAboveChecker: null | number = null
 	let activeWeapon = 0
 
-	let blast = new BlasterVFX('test', {
+	const blast = new BlasterVFX('test', {
 			cache:200
 	}, scene)
-	const railgun = setupRaligunVFX(scene)
+	const railgun = new RailgunVFX("railgun", {
+		cache: 200
+	}, scene)
 
 	return {
 		capsuleTransformNode,
@@ -59,7 +61,7 @@ export function make_character_capsule({
 				const activeCapsule = getActiveCapsule()!
 				if (activeWeapon === 0) {
 					blast.shootBlaster(blast, scene, robotRightGun, activeCapsule)
-				} else railgun.shootRailgun(robotRightGun.getAbsolutePosition(), pick.pickedPoint!)
+				} else railgun.shootRailgun(railgun, scene, robotRightGun, activeCapsule, pick.distance)
 			}
 		},
 		switchWeapon() {
