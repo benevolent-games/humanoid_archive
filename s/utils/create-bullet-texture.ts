@@ -18,7 +18,7 @@ export function createBulletTexture(
 	diffuse.refreshRate = 0
 	diffuse.setFloat('ratio', 1)
 
-	var mat = new StandardMaterial(name+'Mat', scene)
+	let mat = new StandardMaterial(name + 'Mat', scene)
 	mat.backFaceCulling = false
 	mat.diffuseTexture = diffuse
 	mat.emissiveTexture = diffuse
