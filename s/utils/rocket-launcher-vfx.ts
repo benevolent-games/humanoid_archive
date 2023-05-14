@@ -10,6 +10,8 @@ import {Matrix, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem.js"
 
+import {Sps} from "../types/Sps.js"
+import {Particle} from "../types/Particle.js"
 import {createBlastTexture} from "./create-blast-texture.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
 import {createBlastDotTexture} from "./create-blastdot-texture.js"
@@ -24,7 +26,7 @@ scene: Scene
 delta = 0
 time = 0
 aimNode: null | TransformNode = null
-sps: any
+sps: Sps
 blastMat: StandardMaterial
 blastConeMat: StandardMaterial
 bulletMat: StandardMaterial
@@ -183,10 +185,10 @@ mesh: Mesh
 
 	}
 
-	testCollisions(p: any, rotation: any){
+	testCollisions(p: Particle, rotation: any){
 			let ray = new Ray(p.position, p.direction, p.speed)
 			let pick = this.scene.pickWithRay(ray, (m)=>{
-					if(m.shootable){
+					if((m as AbstractMesh & {shootable: boolean}).shootable){
 							return true
 					}
 					return false
@@ -198,7 +200,7 @@ mesh: Mesh
 			return false
 	}
 
-	hit(p, pick: PickingInfo, rotation: any){
+	hit(p: Particle, pick: PickingInfo, rotation: any){
 			let normal = p.direction.scale(-1)
 			let point = pick.pickedPoint
 			let normalP = pick!.pickedMesh!.rotation.y
@@ -218,11 +220,6 @@ mesh: Mesh
 			this.delta = delta
 			this.time += delta
 			this.sps.setParticles()
-			if(this.blastMat){
-				this.blastMat!.diffuseTexture!._time += this.delta*0.001
-				this.blastMat.diffuseTexture!.setFloat('time',this.blastMat.diffuseTexture._time)
-				this.blastConeMat.diffuseTexture!.setFloat('time',this.blastMat.diffuseTexture._time)
-			}
 	}
 
 	fire(robotRightGun: AbstractMesh, normal: Vector3) {

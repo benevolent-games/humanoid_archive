@@ -9,6 +9,8 @@ import {Matrix, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem.js"
 
+import {Sps} from "../types/Sps.js"
+import {Particle} from "../types/Particle.js"
 import {createBlastTexture} from "./create-blast-texture.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
 import {createBlastDotTexture} from "./create-blastdot-texture.js"
@@ -22,7 +24,7 @@ scene: Scene
 delta = 0
 time = 0
 aimNode: null | TransformNode = null
-sps: any
+sps: Sps
 blastMat: StandardMaterial
 blastConeMat: StandardMaterial
 bulletMat: StandardMaterial
@@ -117,7 +119,7 @@ mesh: Mesh
 			}
 
 			// recycle
-			this.sps.recycleParticle = (particle: any) => {
+			this.sps.recycleParticle = (particle) => {
 					particle.type = 0
 					particle.position.x = 0
 					particle.position.y = 0
@@ -127,8 +129,8 @@ mesh: Mesh
 					particle.scale.z = 0
 			}
 
-			this.sps.updateParticle = (p: any)=>{
-					let aTime, xOff, yOff
+		this.sps.updateParticle = (p) => {
+				let aTime, xOff, yOff
 					switch(p.type){
 						case 0:
 							if(this.aimNode)
@@ -225,7 +227,7 @@ mesh: Mesh
 									
 									p.position = pp.position.clone()
 									p.rotation = pp.rotation.clone()
-									p.rotationQuaternion = pp.rotationQuaternion.clone()
+									p.rotationQuaternion = pp.rotationQuaternion!.clone()
 
 							break
 							case 4:
@@ -269,10 +271,10 @@ mesh: Mesh
 
 	}
 
-	testCollisions(p: any, rotation: any){
+	testCollisions(p: Particle, rotation: any){
 			let ray = new Ray(p.position, p.direction, p.speed)
 			let pick = this.scene.pickWithRay(ray, (m)=>{
-					if(m.shootable){
+					if((m as AbstractMesh & {shootable: boolean}).shootable) {
 							return true
 					}
 					return false
@@ -284,7 +286,7 @@ mesh: Mesh
 			return false
 	}
 
-	hit(p, pick: PickingInfo, rotation: any){
+	hit(p: Particle, pick: PickingInfo, rotation: any){
 			let normal = p.direction.scale(-1)
 			let point = pick.pickedPoint
 			this.subEmit(4, {
@@ -309,19 +311,13 @@ mesh: Mesh
 			this.delta = delta
 			this.time += delta
 			this.sps.setParticles()
-			if(this.blastMat){
-				this.blastMat!.diffuseTexture!._time += this.delta*0.001
-				this.blastMat.diffuseTexture!.setFloat('time',this.blastMat.diffuseTexture._time)
-				this.blastConeMat.diffuseTexture!.setFloat('time',this.blastMat.diffuseTexture._time)
-			}
 	}
 
 	fire(robotRightGun: AbstractMesh, distance: number) {
 		
 		const gunPosition = robotRightGun.getAbsolutePosition()
 		const gunForward = robotRightGun.forward
-			//MuzzleFlash
-			let p = this.sps.particles[this.getCurrentSpawn(0)]
+			let p: Particle = this.sps.particles[this.getCurrentSpawn(0)]
 			p.type = 1
 			p.scale = new Vector3(0.2,0.2,0.2)
 			p.rotation = this.aimNode!.rotation.clone()
@@ -401,7 +397,7 @@ mesh: Mesh
 	}
 
 	subEmit(type: number, data: any, count = 1){
-			let p
+		let p: Particle
 			switch(type){
 					case 1:
 							p = this.sps.particles[this.getCurrentSpawn(0)]
