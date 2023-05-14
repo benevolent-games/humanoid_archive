@@ -13,6 +13,7 @@ import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {BlasterVFX} from "../utils/blaster-vfx.js"
 import {RailgunVFX} from "../utils/railgun-vfx.js"
 import {RobotPuppet} from "../utils/robot-puppet.js"
+import {RocketLauncherVFX} from "../utils/rocket-launcher-vfx.js"
 import {active_capsule_manager} from "./utils/active_capsule_manager.js"
 
 export function make_character_capsule({
@@ -43,10 +44,13 @@ export function make_character_capsule({
 	let isSomethingAboveChecker: null | number = null
 	let activeWeapon = 0
 
-	const blast = new BlasterVFX('test', {
+	const blast = new BlasterVFX('blaster', {
 			cache:200
 	}, scene)
 	const railgun = new RailgunVFX("railgun", {
+		cache: 200
+	}, scene)
+	const rocketLauncher = new RocketLauncherVFX("rocket-launcher", {
 		cache: 200
 	}, scene)
 
@@ -59,13 +63,15 @@ export function make_character_capsule({
 			const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2);
 			if (pick?.hit) {
 				const activeCapsule = getActiveCapsule()!
-				if (activeWeapon === 0) {
+				if (activeWeapon === 0)
 					blast.shootBlaster(blast, scene, robotRightGun, activeCapsule)
-				} else railgun.shootRailgun(railgun, scene, robotRightGun, activeCapsule, pick.distance)
+				else if (activeWeapon === 1) railgun.shootRailgun(railgun, scene, robotRightGun, activeCapsule, pick.distance)
+				else rocketLauncher.shootRocketLauncher(rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!)
 			}
 		},
 		switchWeapon() {
-			activeWeapon === 0 ? activeWeapon = 1 : activeWeapon = 0
+			activeWeapon += 1
+			if(activeWeapon === 3) activeWeapon = 0
 		},
 		jump() {
 			const activeCapsule = getActiveCapsule()
