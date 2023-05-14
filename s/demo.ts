@@ -23,18 +23,15 @@ import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperat
 
 import {NubCauseEvent, NubDetail, NubEffectEvent} from "@benev/nubs"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
-import {make_fly_camera} from "@benev/toolbox/x/babylon/flycam/make_fly_camera.js"
-import {integrate_nubs_to_control_fly_camera} from "@benev/toolbox/x/babylon/flycam/integrate_nubs_to_control_fly_camera.js"
 
 import {loadGlb} from "./utils/babylon/load-glb.js"
-import {RobotPuppet} from "./utils/robot-puppet.js"
+import {Robot_puppet} from "./robot_puppet/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
 import {toggleCameraView} from "./utils/toggle-camera-view.js"
-import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
-import {make_character_capsule} from "./character-capsule/make_character_capsule.js"
+import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
-import {integrate_nubs_to_control_character_capsule} from "./character-capsule/integrate_nubs_to_control_character_capsule.js"
+import {integrate_nubs_to_control_character_capsule} from "./robot_puppet/integrate_nubs_to_control_character_capsule.js"
 
 void async function main() {
 	document.querySelector("[data-loading]")!.remove()
@@ -87,10 +84,10 @@ void async function main() {
 		},
 	})
 
-	const robot_puppet = new RobotPuppet({scene, position: [0,0,0]})
-	await robot_puppet.isLoaded
+	const robot_puppet = new Robot_puppet(scene, [0,0,0])
+	await robot_puppet.is_loaded
 
-	const character_capsule = integrate_nubs_to_control_character_capsule({
+	integrate_nubs_to_control_character_capsule({
 		nub_context: nubContext!,
 		render_loop: renderLoop,
 		speeds_for_movement: {
@@ -107,19 +104,14 @@ void async function main() {
 			base: 1 / 25,
 			fast: 1 / 5,
 		},
-		capsuleTransformNode: make_character_capsule({
-			scene,
-			position: [0, 5, 0],
-			robot_puppet
-		}),
+		robot_puppet
 	})
 
 	const robot_upper = robot_puppet.upper!
-	const robot_root = robot_puppet.root!
 
-	robot_root.parent = character_capsule.capsuleTransformNode
-
-	const character_camera = new TargetCamera("first-cam", Vector3.Zero(), scene)
+	const character_camera = new TargetCamera(
+		"first-cam", Vector3.Zero(), scene
+	)
 	character_camera.ignoreParentScaling = true
 	character_camera.parent = robot_upper
 
@@ -239,7 +231,7 @@ void async function main() {
 		.listen(({detail}) => {
 			const switchWeapon = detail.cause === "KeyU" && (detail as NubDetail.Key).pressed
 			if (switchWeapon)
-				character_capsule.switchWeapon()
+				robot_puppet.switchWeapon()
 	})
 
 	NubEffectEvent.target(window)
@@ -270,20 +262,20 @@ void async function main() {
 				)
 			}
 			if (jump) {
-				character_capsule.jump()
+				robot_puppet.jump()
 			}
 			if (isLeftClick) {
-				character_capsule.shoot()
+				robot_puppet.shoot()
 			}
 			if (crouch) {
-				character_capsule.crouch()
+				robot_puppet.crouch()
 			}
 			if (crouchEnd) {
-				character_capsule.stand()
+				robot_puppet.stand()
 			}
 		})
 
-	console.log("🤖 humanoid ready")
+	console.log(`%c🤖 humanoid ready`, `color: green;`)
 	resize(theater.settings.resolutionScale ?? 100)
 	start()
 }()

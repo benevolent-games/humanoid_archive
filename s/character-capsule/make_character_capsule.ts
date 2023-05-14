@@ -42,76 +42,76 @@ export function make_character_capsule({
 	const laserMaterial = new StandardMaterial("laserMaterial", scene)
 	laserMaterial.emissiveColor = Color3.Red()
 	let isSomethingAboveChecker: null | number = null
-	let activeWeapon = 0
+	// let activeWeapon = 0
 
-	const blast = new BlasterVFX('blaster', {
-			cache:200
-	}, scene)
-	const railgun = new RailgunVFX("railgun", {
-		cache: 200
-	}, scene)
-	const rocketLauncher = new RocketLauncherVFX("rocket-launcher", {
-		cache: 200
-	}, scene)
+	// const blast = new BlasterVFX('blaster', {
+	// 		cache:200
+	// }, scene)
+	// const railgun = new RailgunVFX("railgun", {
+	// 	cache: 200
+	// }, scene)
+	// const rocketLauncher = new RocketLauncherVFX("rocket-launcher", {
+	// 	cache: 200
+	// }, scene)
 
 	return {
 		capsuleTransformNode,
-		shoot() {
-			// const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
-			// const pick = scene.pickWithRay(shootRay)
-			const engine = scene.getEngine();
-			const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2);
-			if (pick?.hit) {
-				const activeCapsule = getActiveCapsule()!
-				if (activeWeapon === 0)
-					blast.shootBlaster(blast, scene, robotRightGun, activeCapsule)
-				else if (activeWeapon === 1) railgun.shootRailgun(railgun, scene, robotRightGun, activeCapsule, pick.distance)
-				else rocketLauncher.shootRocketLauncher(rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!)
-			}
-		},
-		switchWeapon() {
-			activeWeapon += 1
-			if(activeWeapon === 3) activeWeapon = 0
-		},
-		jump() {
-			const activeCapsule = getActiveCapsule()
-			const ray = new Ray(new Vector3(
-				activeCapsule!.position.x,
-				activeCapsule!.position.y,
-				activeCapsule!.position.z), Vector3.Down(), 1.8)
-			const pick = scene.pickWithRay(ray, predicate)
-			if(pick?.hit)
-				activeCapsule!.physicsImpostor?.applyImpulse(
-					new Vector3(0, 20, 0), activeCapsule!.getAbsolutePosition()
-				)
-		},
-		crouch() {
-			makeCrouchingCapsuleActive()
-			robot_puppet.upper!.position = new Vector3(0, 1.2, 0)
-		},
-		stand() {
-			const activeCapsule = getActiveCapsule()
-			const ray = new Ray(activeCapsule!.getAbsolutePosition(), Vector3.Up(), 1.5)
-			const isSomethingAbove = scene.pickWithRay(ray, predicate)?.hit
-			if (!isSomethingAbove) {
-				makeStandingCapsuleActive()
-				robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
-			} else {
-				if (!isSomethingAboveChecker) {
-					isSomethingAboveChecker = setInterval(() => {
-						const activeCapsule = getActiveCapsule()
-						const ray = new Ray(activeCapsule!.getAbsolutePosition(), Vector3.Up(), 1.5)
-						const isSomethingAbove = scene.pickWithRay(ray, predicate)?.hit
-						if (!isSomethingAbove) {
-							makeStandingCapsuleActive()
-							robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
-							clearInterval(isSomethingAboveChecker!)
-							isSomethingAboveChecker = null
-						}
-					}, 100)
-				}
-			}
-		},
+		// shoot() {
+		// 	// const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
+		// 	// const pick = scene.pickWithRay(shootRay)
+		// 	const engine = scene.getEngine();
+		// 	const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2);
+		// 	if (pick?.hit) {
+		// 		const activeCapsule = getActiveCapsule()!
+		// 		if (activeWeapon === 0)
+		// 			blast.shootBlaster(blast, scene, robotRightGun, activeCapsule)
+		// 		else if (activeWeapon === 1) railgun.shootRailgun(railgun, scene, robotRightGun, activeCapsule, pick.distance)
+		// 		else rocketLauncher.shootRocketLauncher(rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!)
+		// 	}
+		// },
+		// switchWeapon() {
+		// 	activeWeapon += 1
+		// 	if(activeWeapon === 3) activeWeapon = 0
+		// },
+		// jump() {
+		// 	const activeCapsule = getActiveCapsule()
+		// 	const ray = new Ray(new Vector3(
+		// 		activeCapsule!.position.x,
+		// 		activeCapsule!.position.y,
+		// 		activeCapsule!.position.z), Vector3.Down(), 1.8)
+		// 	const pick = scene.pickWithRay(ray, predicate)
+		// 	if(pick?.hit)
+		// 		activeCapsule!.physicsImpostor?.applyImpulse(
+		// 			new Vector3(0, 20, 0), activeCapsule!.getAbsolutePosition()
+		// 		)
+		// },
+		// crouch() {
+		// 	makeCrouchingCapsuleActive()
+		// 	robot_puppet.upper!.position = new Vector3(0, 1.2, 0)
+		// },
+		// stand() {
+		// 	const activeCapsule = getActiveCapsule()
+		// 	const ray = new Ray(activeCapsule!.getAbsolutePosition(), Vector3.Up(), 1.5)
+		// 	const isSomethingAbove = scene.pickWithRay(ray, predicate)?.hit
+		// 	if (!isSomethingAbove) {
+		// 		makeStandingCapsuleActive()
+		// 		robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
+		// 	} else {
+		// 		if (!isSomethingAboveChecker) {
+		// 			isSomethingAboveChecker = setInterval(() => {
+		// 				const activeCapsule = getActiveCapsule()
+		// 				const ray = new Ray(activeCapsule!.getAbsolutePosition(), Vector3.Up(), 1.5)
+		// 				const isSomethingAbove = scene.pickWithRay(ray, predicate)?.hit
+		// 				if (!isSomethingAbove) {
+		// 					makeStandingCapsuleActive()
+		// 					robot_puppet.upper!.position = new Vector3(0, 1.6, 0)
+		// 					clearInterval(isSomethingAboveChecker!)
+		// 					isSomethingAboveChecker = null
+		// 				}
+		// 			}, 100)
+		// 		}
+		// 	}
+		// },
 		add_move(vector: V2) {
 			const [x, z] = vector
 			const translation = new Vector3(x, 0, z)
