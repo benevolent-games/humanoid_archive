@@ -36,12 +36,12 @@ export async function load_level_and_setup_meshes_for_collision({
 		}
 	}
 
-	function enable_physics(mesh: Mesh) {
+	function enable_physics(mesh: Mesh & {shootable?: boolean}) {
 		mesh.physicsImpostor = new PhysicsImpostor(mesh,
 			PhysicsImpostor.MeshImpostor,
 			physics_impostor_settings,
 			scene
-		)
+		);
 		mesh.shootable = true
 	}
 
