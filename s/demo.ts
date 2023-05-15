@@ -250,17 +250,6 @@ void async function main() {
 					scene, surface_normal, ray.pickedPoint, boxMaterial
 				)
 			}
-			else if (isLeftClick && ray.pickedMesh?.name === "box") {
-				const impulseForceDirection = new Vector3(
-					ray.ray!.direction!.x * 5,
-					ray.ray!.direction!.y * 5,
-					ray.ray!.direction!.z * 5,
-				)
-				ray.pickedMesh.applyImpulse(
-					impulseForceDirection,
-					ray.pickedPoint!,
-				)
-			}
 			if (jump) {
 				robot_puppet.jump()
 			}

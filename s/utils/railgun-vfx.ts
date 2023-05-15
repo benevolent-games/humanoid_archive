@@ -11,6 +11,7 @@ import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem
 
 import {Sps} from "../types/Sps.js"
 import {Particle} from "../types/Particle.js"
+import {applyForceToMesh} from "./apply-force-to-mesh.js"
 import {createBlastTexture} from "./create-blast-texture.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
 import {createBlastDotTexture} from "./create-blastdot-texture.js"
@@ -289,6 +290,8 @@ mesh: Mesh
 	hit(p: Particle, pick: PickingInfo, rotation: any){
 			let normal = p.direction.scale(-1)
 			let point = pick.pickedPoint
+			applyForceToMesh(pick)
+
 			this.subEmit(4, {
 					parentId : p.idx,
 					position : point,
