@@ -120,7 +120,7 @@ mesh: Mesh
 			}
 
 			// recycle
-			this.sps.recycleParticle = (particle: any) => {
+			this.sps.recycleParticle = (particle) => {
 					particle.type = 0
 					particle.position.x = 0
 					particle.position.y = 0
@@ -130,7 +130,7 @@ mesh: Mesh
 					particle.scale.z = 0
 			}
 
-			this.sps.updateParticle = (p: any)=>{
+			this.sps.updateParticle = (p)=>{
 					let aTime, xOff, yOff
 					switch(p.type){
 						case 0:
@@ -290,9 +290,9 @@ mesh: Mesh
 			applyForceToMesh(pick)
 
 			this.subEmit(4, {
-					parentId : p.idx,
-					position : point,
-					speed : p.speed,
+					parentId: p.idx,
+					position: p.position,
+					speed: p.speed,
 					direction: normal,
 					rotation
 			}, (Math.random()*3)+6)
@@ -397,7 +397,7 @@ mesh: Mesh
 	}
 
 	subEmit(type: number, data: any, count = 1){
-			let p
+			let p: Particle
 			switch(type){
 					case 1:
 							p = this.sps.particles[this.getCurrentSpawn(0)]

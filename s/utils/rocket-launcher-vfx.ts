@@ -112,7 +112,7 @@ mesh: Mesh
 			}
 
 			// recycle
-			this.sps.recycleParticle = (particle: any) => {
+			this.sps.recycleParticle = (particle) => {
 					particle.type = 0
 					particle.position.x = 0
 					particle.position.y = 0
@@ -122,7 +122,7 @@ mesh: Mesh
 					particle.scale.z = 0
 			}
 
-			this.sps.updateParticle = (p: any)=>{
+			this.sps.updateParticle = (p)=>{
 					switch(p.type){
 						case 0:
 							if(this.aimNode)
@@ -210,9 +210,9 @@ mesh: Mesh
 			applyForceToMesh(pick)
 
 			this.subEmit(4, {
-					parentId : p.idx,
-					position : point,
-					speed : p.speed,
+					parentId: p.idx,
+					position: p.position,
+					speed: p.speed,
 					direction: normal,
 					rotation,
 					normal: normalP
