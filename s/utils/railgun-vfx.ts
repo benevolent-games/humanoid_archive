@@ -293,9 +293,9 @@ mesh: Mesh
 			applyForceToMesh(pick)
 
 			this.subEmit(4, {
-					parentId : p.idx,
-					position : point,
-					speed : p.speed,
+					parentId: p.idx,
+					position: p.position,
+					speed: p.speed,
 				direction: normal,
 						rotation: rotation
 			}, (Math.random()*3)+6)
