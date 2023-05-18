@@ -23,38 +23,56 @@ laserMaterial.emissiveColor = Color3.Red()
 
 export class Robot_puppet {
 	#scene: Scene
-	starting_position: V3 = v3.zero()
-	current_look: V2 = v2.zero()
-	is_loaded = this.#loadGlb()
 	capsule: Mesh
+	is_loaded = this.#loadGlb()
+	current_look: V2 = v2.zero()
+	starting_position: V3 = v3.zero()
 	#coater_transform_node: TransformNode
 	#capsule_transform_node: TransformNode
 	#is_base_mesh = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 
+	root: TransformNode | undefined
+	upper: TransformNode | undefined
+	coaster: TransformNode | undefined
 
 	constructor(scene: Scene, position: V3) {
 		this.#scene = scene
 		this.starting_position = position
-		this.capsule = this.#makeCapsule(3, this.starting_position)
-
-		this.#coater_transform_node = new TransformNode('robot-coaster', scene)
-		this.#capsule_transform_node = new TransformNode('capsule', scene)
+		this.capsule = this.#makeCapsule(3, position)
+		this.#coater_transform_node = new TransformNode("robot-coaster", scene)
+		this.#capsule_transform_node = new TransformNode("capsule",scene)
 		this.#capsule_transform_node.parent = this.capsule
+
 		this.is_loaded.then((m) => {
-			m.meshes.forEach(
-				(mesh) => {
-					if (mesh.id.startsWith("collision"))
-						mesh.visibility = 0
-				}
-			)
-			const root = this.root as TransformNode
-			root.position = new Vector3(0,-0.8,0)
-			root.parent = this.capsule
-			})
+			this.#hide_collision_meshes(m.meshes)
+			this.#assign_robot_parts(m.transformNodes)
+			if (this.root) {
+				this.root.position = new Vector3(0, -1, 0)
+				this.root.parent = this.capsule
+			}
+		})
 	}
 
 	async #loadGlb() {
 		return await loadGlb(this.#scene, `https://dl.dropbox.com/s/ka0uunak8h9fts5/spherebot3_1.glb`)
+	}
+
+	#hide_collision_meshes(meshes: AbstractMesh[]) {
+		meshes.forEach(mesh => {
+			if (mesh.id.startsWith("collision"))
+				mesh.visibility = 0
+		})
+	}
+
+	#assign_robot_parts(nodes: TransformNode[]) {
+		nodes.forEach(node => {
+			if (node.id === "root")
+					this.root = node
+			if (node.id === "upper")
+				this.upper = node
+			if (node.id === "coaster")
+				this.coaster = node
+		})
 	}
 
 	#change_character_capsule({
@@ -75,7 +93,7 @@ export class Robot_puppet {
 	}
 
 	#makeCapsule(height: number, position: V3) {
-		const capsule = MeshBuilder.CreateCapsule("robot-capsule", {
+		const capsule = MeshBuilder.CreateCapsule("capsule", {
 			radius: 0.8,
 			height,
 			updatable: true,
@@ -89,18 +107,6 @@ export class Robot_puppet {
 		capsule.physicsImpostor.physicsBody.setAngularFactor(0)
 		capsule.material = material
 		return capsule
-	}
-
-	get upper() {
-		return this.#scene.getTransformNodeByName("upper")
-	}
-
-	get coaster() {
-		return this.#scene.getTransformNodeByName("coaster")
-	}
-
-	get root() {
-		return this.#scene.getTransformNodeByName("coaster")?.parent
 	}
 
 	setVerticalAim(y: number) {
