@@ -11,6 +11,7 @@ import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
 import {V3, v3} from "@benev/toolbox/x/utils/v3.js"
 
 import {loadGlb} from "../utils/babylon/load-glb.js"
+import {createHealthIndicator} from "../utils/create-health-indicator.js"
 
 const material = new StandardMaterial("capsule")
 material.alpha = 0.1
@@ -25,11 +26,15 @@ export class Robot_puppet_dummy {
 	is_loaded = this.#loadGlb()
 	capsule: Mesh
 	health = 100
+	#updateHealthIndicator: (health: number) => void
 
 	constructor(scene: Scene, position: V3) {
 		this.#scene = scene
 		this.starting_position = position
 		this.capsule = this.#makeCapsule(3, this.starting_position)
+		const {updateHealthIndicator} = createHealthIndicator(this.capsule, scene)
+		this.#updateHealthIndicator = updateHealthIndicator
+
 		this.is_loaded.then((m) => {
 			m.meshes.forEach(
 				(mesh: AbstractMesh & {shootable?: boolean}) => {
@@ -53,6 +58,7 @@ export class Robot_puppet_dummy {
 	}
 
 	set setHealth(health: number) {
+		this.#updateHealthIndicator(health)
 		this.health = health
 	}
 
