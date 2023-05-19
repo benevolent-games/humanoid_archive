@@ -506,7 +506,6 @@ mesh: Mesh
 		blast: RailgunVFX,
 		scene: Scene,
 		robotRightGun: AbstractMesh,
-		activeCapsule: Mesh,
 		distance: number) {
 		let timer = 300
 		let last = Date.now()

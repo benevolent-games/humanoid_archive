@@ -503,7 +503,7 @@ mesh: Mesh
 		blast: BlasterVFX,
 		scene: Scene,
 		robotRightGun: AbstractMesh,
-		activeCapsule: Mesh) {
+		activeCapsule?: Mesh) {
 		let timer = 300
 		let last = Date.now()
 		let time = 0
