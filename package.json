@@ -38,6 +38,7 @@
 	"keywords": [],
 	"dependencies": {
 		"@babylonjs/core": "^5.53.0",
+		"@babylonjs/gui": "^5.53.0",
 		"@babylonjs/loaders": "^5.53.0",
 		"@benev/nubs": "^0.2.4",
 		"@benev/toolbox": "^0.3.1",
