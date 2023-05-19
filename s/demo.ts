@@ -30,6 +30,7 @@ import {setupPhysics} from "./physics/setup-physics.js"
 import {toggleCameraView} from "./utils/toggle-camera-view.js"
 import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {Robot_puppet_dummy} from "./robot_puppet/robot-puppet-dummy.js"
+import {Robot_puppet_exploding} from "./robot_puppet/robot-puppet-exploding.js"
 import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
 import {integrate_nubs_to_control_character_capsule} from "./robot_puppet/integrate_nubs_to_control_character_capsule.js"
@@ -84,9 +85,11 @@ void async function main() {
 			},
 		},
 	})
-	const robot_puppet_dummy = new Robot_puppet_dummy(scene, [5, 0, 5])
+	const robot_puppet_dummy = new Robot_puppet_dummy(scene, [5, 5, 5])
 	const robot_puppet = new Robot_puppet(scene, [0, 0, 0])
+	const robot_puppet_exploding = new Robot_puppet_exploding(scene)
 	await robot_puppet_dummy.is_loaded
+	await robot_puppet_exploding.is_loaded
 	await robot_puppet.is_loaded
 
 	integrate_nubs_to_control_character_capsule({
@@ -257,6 +260,11 @@ void async function main() {
 			}
 			if (isLeftClick) {
 				robot_puppet.shoot()
+				robot_puppet_dummy.setHealth = robot_puppet_dummy.health - 20
+				if (robot_puppet_dummy.isDead) {
+				robot_puppet_exploding.explode(robot_puppet_dummy.capsule.getAbsolutePosition())
+				robot_puppet_dummy.capsule.dispose()
+				}
 			}
 			if (crouch) {
 				robot_puppet.crouch()

@@ -24,13 +24,13 @@ export class Robot_puppet_dummy {
 	current_look: V2 = v2.zero()
 	is_loaded = this.#loadGlb()
 	capsule: Mesh
+	health = 100
 
 	constructor(scene: Scene, position: V3) {
 		this.#scene = scene
 		this.starting_position = position
 		this.capsule = this.#makeCapsule(3, this.starting_position)
 		this.is_loaded.then((m) => {
-		
 			m.meshes.forEach(
 				(mesh: AbstractMesh & {shootable?: boolean}) => {
 					if (mesh.id.startsWith("collision"))
@@ -46,6 +46,18 @@ export class Robot_puppet_dummy {
 
 	get upper() {
 		return this.#scene.getTransformNodeByName("upper_dummy")
+	}
+
+	get getHealth() {
+		return this.health
+	}
+
+	set setHealth(health: number) {
+		this.health = health
+	}
+
+	get isDead() {
+		return this.health === 0
 	}
 
 	get root() {

@@ -89,6 +89,10 @@ mesh: Mesh
 			this.sps.addShape(bulletShape, args.cache)
 			bulletShape.dispose()
 
+			//ReuseBlastCone
+			this.sps.addShape(blastCone, args.cache)
+			blastCone.dispose()
+
 			let sparksMat = new StandardMaterial(this.name+':sparksMat', scene)
 			sparksMat.diffuseTexture = new Texture("", scene)
 			sparksMat.emissiveTexture = sparksMat.diffuseTexture
