@@ -1,5 +1,6 @@
 
 import {Scene} from "@babylonjs/core/scene.js"
+import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
@@ -33,7 +34,7 @@ export async function spawn_physics_cube_near_physics_point(
 	)
 
 	box.position = new_position
-	box.material = material
-
+	box.material = material;
+	(box as Mesh & {shootable: boolean}).shootable = true
 	return box
 }

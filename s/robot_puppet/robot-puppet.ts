@@ -15,6 +15,11 @@ import {loadGlb} from "../utils/babylon/load-glb.js"
 import {create_laser_beams} from "./create_laser_beams.js"
 import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon/flycam/utils/add_to_look_vector_but_cap_vertical_axis.js"
 
+import {RailgunVFX} from "../utils/railgun-vfx.js"
+import {BlasterVFX} from "../utils/blaster-vfx.js"
+import {RocketLauncherVFX} from "../utils/rocket-launcher-vfx.js"
+import {createPhysicsImpostor} from "../utils/create-physics-impostor.js"
+
 const material = new StandardMaterial("capsule")
 material.alpha = 0.1
 
@@ -23,38 +28,72 @@ laserMaterial.emissiveColor = Color3.Red()
 
 export class Robot_puppet {
 	#scene: Scene
-	starting_position: V3 = v3.zero()
-	current_look: V2 = v2.zero()
-	is_loaded = this.#loadGlb()
 	capsule: Mesh
+	is_loaded = this.#loadGlb()
+	current_look: V2 = v2.zero()
+	starting_position: V3 = v3.zero()
 	#coater_transform_node: TransformNode
 	#capsule_transform_node: TransformNode
 	#is_base_mesh = (m: AbstractMesh) => m.name.startsWith("humanoid_base")
 
+	root: TransformNode | undefined
+	upper: TransformNode | undefined
+	coaster: TransformNode | undefined
+
+	health = 100
+	activeWeapon = 0
+	railgun: RailgunVFX
+	blaster: BlasterVFX
+	rocketLauncher: RocketLauncherVFX
 
 	constructor(scene: Scene, position: V3) {
 		this.#scene = scene
 		this.starting_position = position
-		this.capsule = this.#makeCapsule(3, this.starting_position)
-
-		this.#coater_transform_node = new TransformNode('robot-coaster', scene)
-		this.#capsule_transform_node = new TransformNode('capsule', scene)
+		this.capsule = this.#makeCapsule(3, position)
+		this.#coater_transform_node = new TransformNode("robot-coaster", scene)
+		this.#capsule_transform_node = new TransformNode("capsule",scene)
 		this.#capsule_transform_node.parent = this.capsule
+
+		this.rocketLauncher = new RocketLauncherVFX("rocket-launcher", {
+			cache: 200
+		}, scene)
+		this.railgun = new RailgunVFX("railgun", {
+			cache: 200
+		}, scene)
+		this.blaster = new BlasterVFX('blaster', {
+			cache:200
+		}, scene)
+
 		this.is_loaded.then((m) => {
-			m.meshes.forEach(
-				(mesh) => {
-					if (mesh.id.startsWith("collision"))
-						mesh.visibility = 0
-				}
-			)
-			const root = this.root as TransformNode
-			root.position = new Vector3(0,-0.8,0)
-			root.parent = this.capsule
-			})
+			this.#hide_collision_meshes(m.meshes)
+			this.#assign_robot_parts(m.transformNodes)
+			if (this.root) {
+				this.root.position = new Vector3(0, -1, 0)
+				this.root.parent = this.capsule
+			}
+		})
 	}
 
 	async #loadGlb() {
 		return await loadGlb(this.#scene, `https://dl.dropbox.com/s/ka0uunak8h9fts5/spherebot3_1.glb`)
+	}
+
+	#hide_collision_meshes(meshes: AbstractMesh[]) {
+		meshes.forEach(mesh => {
+			if (mesh.id.startsWith("collision"))
+				mesh.visibility = 0
+		})
+	}
+
+	#assign_robot_parts(nodes: TransformNode[]) {
+		nodes.forEach(node => {
+			if (node.id === "root")
+					this.root = node
+			if (node.id === "upper")
+				this.upper = node
+			if (node.id === "coaster")
+				this.coaster = node
+		})
 	}
 
 	#change_character_capsule({
@@ -75,7 +114,7 @@ export class Robot_puppet {
 	}
 
 	#makeCapsule(height: number, position: V3) {
-		const capsule = MeshBuilder.CreateCapsule("robot-capsule", {
+		const capsule = MeshBuilder.CreateCapsule("capsule", {
 			radius: 0.8,
 			height,
 			updatable: true,
@@ -89,18 +128,6 @@ export class Robot_puppet {
 		capsule.physicsImpostor.physicsBody.setAngularFactor(0)
 		capsule.material = material
 		return capsule
-	}
-
-	get upper() {
-		return this.#scene.getTransformNodeByName("upper")
-	}
-
-	get coaster() {
-		return this.#scene.getTransformNodeByName("coaster")
-	}
-
-	get root() {
-		return this.#scene.getTransformNodeByName("coaster")?.parent
 	}
 
 	setVerticalAim(y: number) {
@@ -131,19 +158,15 @@ export class Robot_puppet {
 
 	shoot() {
 		const robotRightGun = this.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
-		const robotLeftGun = this.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunleft1_primitive0")!
-
-		const shootRay = new Ray(robotRightGun!.position, robotRightGun!.forward, 100)
-		const pick = this.#scene.pickWithRay(shootRay)
 		const scene = this.#scene
+		const engine = scene.getEngine();
+		const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2)
 
 		if (pick?.hit) {
-			const laserBeams = create_laser_beams({
-				pick, robotLeftGun, robotRightGun, scene, laserMaterial
-			})
-			const removeLaserBeam = setTimeout(() =>
-				laserBeams.forEach(laserBeam => laserBeam.dispose()), 500)
-			return () => clearTimeout(removeLaserBeam)
+			if (this.activeWeapon === 0)
+				this.blaster.shootBlaster(this.blaster, scene, robotRightGun)
+			else if (this.activeWeapon === 1) this.railgun.shootRailgun(this.railgun, scene, robotRightGun, pick.distance)
+			else this.rocketLauncher.shootRocketLauncher(this.rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!)
 		}
 	}
 
@@ -213,5 +236,32 @@ export class Robot_puppet {
 			this.#coater_transform_node.parent = this.#capsule_transform_node
 			this.coaster!.position = new Vector3(0, -1, 0)
 		}
+	}
+
+	switchWeapon() {
+		this.activeWeapon += 1
+		if(this.activeWeapon === 3) this.activeWeapon = 0
+	}
+
+	explode(position: Vector3) {
+		this.is_loaded.then(m => {
+			for (const mesh of m.meshes) {
+				this.#hide_collision_meshes(m.meshes)
+				if (mesh.id.includes("collision")) {
+					createPhysicsImpostor(this.#scene, mesh, PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.9 }, true);
+					mesh.setAbsolutePosition(position)
+					this.capsule.dispose(true)
+				}
+				
+			}
+		})
+	}
+
+	set setHealth(health: number) {
+		this.health = health
+	}
+
+	get isDead() {
+		return this.health === 0
 	}
 }

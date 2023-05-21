@@ -21,7 +21,7 @@ import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/cascadedSh
 import {SSAO2RenderingPipeline} from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline.js"
 import {DefaultRenderingPipeline, DepthOfFieldEffectBlurLevel, TonemappingOperator} from "@babylonjs/core/PostProcesses/index.js"
 
-import {NubDetail, NubEffectEvent} from "@benev/nubs"
+import {NubCauseEvent, NubDetail, NubEffectEvent} from "@benev/nubs"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 
 import {loadGlb} from "./utils/babylon/load-glb.js"
@@ -83,8 +83,10 @@ void async function main() {
 			},
 		},
 	})
+	const robot_puppet_dummy = new Robot_puppet(scene, [5, 5, 5])
+	await robot_puppet_dummy.is_loaded
 
-	const robot_puppet = new Robot_puppet(scene, [0,0,0])
+	const robot_puppet = new Robot_puppet(scene, [0, 0, 0])
 	await robot_puppet.is_loaded
 
 	integrate_nubs_to_control_character_capsule({
@@ -227,6 +229,13 @@ void async function main() {
 		return material
 	})()
 
+	NubCauseEvent.target(window)
+		.listen(({detail}) => {
+			const switchWeapon = detail.cause === "KeyU" && (detail as NubDetail.Key).pressed
+			if (switchWeapon)
+				robot_puppet.switchWeapon()
+	})
+
 	NubEffectEvent.target(window)
 		.listen(({detail}) => {
 			const centerX = engine.getRenderWidth() / 2
@@ -243,22 +252,17 @@ void async function main() {
 					scene, surface_normal, ray.pickedPoint, boxMaterial
 				)
 			}
-			else if (isLeftClick && ray.pickedMesh?.name === "box") {
-				const impulseForceDirection = new Vector3(
-					ray.ray!.direction!.x * 5,
-					ray.ray!.direction!.y * 5,
-					ray.ray!.direction!.z * 5,
-				)
-				ray.pickedMesh.applyImpulse(
-					impulseForceDirection,
-					ray.pickedPoint!,
-				)
-			}
 			if (jump) {
 				robot_puppet.jump()
 			}
 			if (isLeftClick) {
 				robot_puppet.shoot()
+				robot_puppet_dummy.setHealth = robot_puppet_dummy.health - 20
+				if (robot_puppet_dummy.isDead) {
+					robot_puppet_dummy.explode(
+						robot_puppet_dummy.capsule.getAbsolutePosition()
+					)
+				}
 			}
 			if (crouch) {
 				robot_puppet.crouch()
