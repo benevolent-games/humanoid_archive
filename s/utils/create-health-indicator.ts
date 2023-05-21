@@ -1,9 +1,9 @@
 import {Scene} from "@babylonjs/core/scene.js"
 import {AdvancedDynamicTexture, Rectangle} from "@babylonjs/gui"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
-import {AbstractMesh, Mesh} from "@babylonjs/core/Meshes/index.js"
+import {Mesh, TransformNode} from "@babylonjs/core/Meshes/index.js"
 
-export function createHealthIndicator(capsule: AbstractMesh, scene: Scene) {
+export function createHealthIndicator(capsule: TransformNode, scene: Scene) {
 	const g = MeshBuilder.CreatePlane("plane", {width: 2.1, height: 0.3}, scene)
 	const g1 = MeshBuilder.CreatePlane("plane", {width: 2, height: 0.2}, scene)
 	g.billboardMode = Mesh.BILLBOARDMODE_ALL
@@ -26,6 +26,10 @@ export function createHealthIndicator(capsule: AbstractMesh, scene: Scene) {
 	return {
 		updateHealthIndicator(health: number) {
 			rect.width = health / 100
+		},
+		dispose() {
+			healthBar.dispose()
+			g.dispose()
 		}
 	}
 }
