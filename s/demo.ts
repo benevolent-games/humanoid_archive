@@ -12,9 +12,12 @@ import "@babylonjs/core/Culling/ray.js"
 import "@babylonjs/core/PostProcesses/index.js"
 import "@babylonjs/core/Rendering/index.js"
 
+import {Ray} from "@babylonjs/core/Culling/ray.js"
 import {Vector3} from "@babylonjs/core/Maths/math.vector.js"
+import {AbstractMesh} from "@babylonjs/core/Meshes/index.js"
 import {Color3, Color4} from "@babylonjs/core/Maths/math.color.js"
 import {SceneLoader} from "@babylonjs/core/Loading/sceneLoader.js"
+import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {HemisphericLight} from "@babylonjs/core/Lights/hemisphericLight.js"
 import {CascadedShadowGenerator} from "@babylonjs/core/Lights/Shadows/cascadedShadowGenerator.js"
@@ -25,10 +28,10 @@ import {NubCauseEvent, NubDetail, NubEffectEvent} from "@benev/nubs"
 import {BenevTheater} from "@benev/toolbox/x/babylon/theater/element.js"
 
 import {loadGlb} from "./utils/babylon/load-glb.js"
-import {Robot_puppet} from "./robot_puppet/robot-puppet.js"
 import {setupPhysics} from "./physics/setup-physics.js"
+import {Robot_puppet} from "./robot_puppet/robot-puppet.js"
 import {toggleCameraView} from "./utils/toggle-camera-view.js"
-import {TargetCamera} from "@babylonjs/core/Cameras/targetCamera.js"
+import {spawnRobotDummies} from "./utils/spawn-robot-dummies.js"
 import {spawn_physics_cube_near_physics_point} from "./utils/spawn-physics-cube.js"
 import {load_level_and_setup_meshes_for_collision} from "./utils/load_level_and_setup_meshes_for_collision.js"
 import {integrate_nubs_to_control_character_capsule} from "./robot_puppet/integrate_nubs_to_control_character_capsule.js"
@@ -83,9 +86,9 @@ void async function main() {
 			},
 		},
 	})
-	const robot_puppet_dummy = new Robot_puppet(scene, [5, 5, 5])
-	await robot_puppet_dummy.is_loaded
 
+	const robotDummies = spawnRobotDummies(6, [5, 5, 5], scene)
+	robotDummies.forEach(async r => await r.is_loaded)
 	const robot_puppet = new Robot_puppet(scene, [0, 0, 0])
 	await robot_puppet.is_loaded
 
@@ -256,13 +259,25 @@ void async function main() {
 				robot_puppet.jump()
 			}
 			if (isLeftClick) {
-				robot_puppet.shoot()
-				robot_puppet_dummy.setHealth = robot_puppet_dummy.health - 20
+				const robotRightGun = robot_puppet.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
+				let ray = new Ray(new Vector3(robotRightGun.getAbsolutePosition().x, robotRightGun.getAbsolutePosition().y, robotRightGun.getAbsolutePosition().z), robotRightGun.forward.clone(), 10)
+				let pick = scene.pickWithRay(ray, (m)=>{
+					if((m as AbstractMesh & {shootable: boolean}).shootable && m.name !== robot_puppet.capsule.name){
+							return true
+					}
+					return false
+			})
+				const pickedRobotDummy = pick?.pickedMesh?.name.startsWith("dummy")
+				if (pickedRobotDummy) {
+					const index = Number(pick?.pickedMesh?.name.split("-")[2])
+					const robot_puppet_dummy = robotDummies[index]
+					robot_puppet.shoot(robot_puppet_dummy)
 				if (robot_puppet_dummy.isDead) {
 					robot_puppet_dummy.explode(
 						robot_puppet_dummy.capsule.getAbsolutePosition()
 					)
 				}
+				} else robot_puppet.shoot()
 			}
 			if (crouch) {
 				robot_puppet.crouch()
