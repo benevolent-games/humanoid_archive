@@ -5,6 +5,7 @@ import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
 import {PickingInfo} from "@babylonjs/core/Collisions/pickingInfo.js"
 import {Texture} from "@babylonjs/core/Materials/Textures/texture.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 import {Matrix, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem.js"
@@ -16,7 +17,6 @@ import {createBlastTexture} from "./create-blast-texture.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
 import {createBlastDotTexture} from "./create-blastdot-texture.js"
 import {createConeBlastTexture} from "./create-coneblast-texture.js"
-import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 export class BlasterVFX{
 name: string
@@ -160,22 +160,21 @@ mesh: Mesh
 											return this.sps.recycleParticle(p)
 									}
 							break
-							case 2 :
+							case 2:
 									if(p.scale.z < p.scaleMax){
 											p.scale.z*=p.scaleUp
 									}
 									p.position.addInPlace(p.direction.scale(p.speed))
 									p.distance+=p.speed
 									p.speed *= p.drag
-									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
-									const pitchAngle = Math.atan2(-p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
-									const rollAngle = Math.atan2(p.direction.y, p.direction.x)
-									let matrix = Matrix.RotationYawPitchRoll(
-										yawAngle,
-										pitchAngle,
+
+									const matrix = Matrix.RotationYawPitchRoll(
+										-Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2,
+										Math.atan2(-p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z)),
 										0
 									)
 									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix)
+
 									let d = 1.0-(p.distance/p.range)
 									if(d<0){
 											return this.sps.recycleParticle(p)
@@ -193,12 +192,14 @@ mesh: Mesh
 													this.subEmit(3, {
 															parentId : p.idx,
 															distance : d,
-															position : p.position.clone()
+															position: p.position.clone(),
+															rotation: p.rotationQuaternion
 													})
 											}
 									}
 							break
 							case 3 :
+									let pp = this.sps.particles[p.parent]
 									p.timer += this.delta
 									aTime = Math.min(p.timer/p.animationSpeed, 1)
 									xOff = Math.floor(aTime/p.animationStep)
@@ -216,18 +217,25 @@ mesh: Mesh
 									p.uvs.z = xOff + p.textureCellSize
 									p.uvs.w = yOff + p.textureCellSize
 
-									let pp = this.sps.particles[p.parent]
+									const matrix1 = Matrix.RotationYawPitchRoll(
+										-Math.atan2(pp.direction.z, pp.direction.x) + Math.PI / 2,
+										Math.atan2(-pp.direction.y, Math.sqrt(pp.direction.x * pp.direction.x + pp.direction.z * pp.direction.z)),
+										0
+									)
+									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix1)
+
+									p.scale.scaleInPlace(p.scaleUp)
+									if(p.scale.x>=p.scaleMax){
+											return this.sps.recycleParticle(p)
+									}
+
 									if(pp.distanceDelta <= 0){
 											return this.sps.recycleParticle(p)
 									}
-									p.scale.scaleInPlace(p.scaleUp*pp.distanceDelta)
+
 									if(p.scale.x>=p.scaleMax*pp.distanceDelta){
 											return this.sps.recycleParticle(p)
 									}
-									
-									p.position = pp.position.clone()
-									p.rotation = pp.rotation.clone()
-
 							break
 							case 4:
 									p.scale.scaleInPlace(p.scaleDown)
@@ -235,6 +243,7 @@ mesh: Mesh
 											return this.sps.recycleParticle(p)
 									}
 									p.speed *= p.drag
+
 									p.position.addInPlace(p.direction.scale(p.speed))
 									p.direction.subtractInPlace(Vector3.Up().scale(p.drop))
 							break;
@@ -297,12 +306,14 @@ mesh: Mesh
 					rotation
 			}, (Math.random()*3)+6)
 			this.subEmit(1, {
-					position:p.position
+					position: p.position,
+					rotation
 			})
 			this.subEmit(5, {
 					position:p.position,
 					distance: p.distanceDelta,
-					direction: p.direction
+					direction: p.direction,
+					rotation
 			})
 			this.sps.recycleParticle(p)
 	}
@@ -360,7 +371,7 @@ mesh: Mesh
 			p.type = 1
 			p.scale = new Vector3(0.2,0.2,0.2)
 			p.rotation = this.aimNode!.rotation.clone()
-			p.position = new Vector3(0,0,0)
+			p.position = new Vector3(gunPosition.x, gunPosition.y, gunPosition.z)
 			p.scaleUp = 1.08
 			p.scaleMax = 0.8
 			p.timer = 0
@@ -404,6 +415,7 @@ mesh: Mesh
 							p.type = 1
 							p.scale = new Vector3(0.5,0.5,0.5)
 							p.position = data.position.clone()
+							p.rotationQuaternion = data.rotation.clone()
 							p.scaleUp = 1.1
 							p.scaleMax = 2.
 							p.timer = 0
@@ -423,7 +435,8 @@ mesh: Mesh
 							p = this.sps.particles[this.getCurrentSpawn(3)]
 							p.type = 3
 							p.scale = new Vector3(0.3,0.3,0.3)
-							p.position = data.position
+							p.position = data.position.clone()
+							p.rotationQuaternion = data.rotation.clone()
 							p.scaleUp = 1.12
 							p.scaleMax = 0.8
 							p.timer = 0
@@ -435,7 +448,7 @@ mesh: Mesh
 							p.uvs.z = p.textureCellSize
 							p.uvs.w = p.textureCellSize
 							p.animationSpeed = 50
-							p.lastFrame = p.pow2Count*p.pow2Count
+							p.lastFrame = p.pow2Count * p.pow2Count
 							p.animationStep = 1/(p.lastFrame+1)
 							p.parent = data.parentId
 					break;
@@ -455,7 +468,7 @@ mesh: Mesh
 									p.direction.y += (Math.cos(this.time*mr))
 									p.direction.z += (Math.sin(this.time*mr))
 									p.direction = p.direction.normalize()
-									p.rotationQuaternion = data.rotation
+									p.rotationQuaternion = data.rotation.clone()
 							}
 					break;
 					case 5:
@@ -475,15 +488,7 @@ mesh: Mesh
 									p.animationSpeed = 3000
 									p.lastFrame = p.pow2Count*p.pow2Count
 									p.animationStep = 1 / (p.lastFrame + 1)
-									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
-									const pitchAngle = Math.atan2(p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
-									const rollAngle = Math.atan2(p.direction.y, p.direction.x)
-									let matrix = Matrix.RotationYawPitchRoll(
-										yawAngle,
-										pitchAngle,
-										0
-									)
-									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix)
+									p.rotationQuaternion = data.rotation.clone()
 					break;
 			}
 	}
