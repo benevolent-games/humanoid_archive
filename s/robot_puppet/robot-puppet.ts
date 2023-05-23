@@ -165,7 +165,7 @@ export class Robot_puppet {
 		this.setVerticalAim(y)
 	}
 
-	shoot(robotPuppet?: Robot_puppet) {
+	shoot(robotDummies?: Robot_puppet[]) {
 		const robotRightGun = this.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
 		const scene = this.#scene
 		const engine = scene.getEngine();
@@ -173,19 +173,16 @@ export class Robot_puppet {
 
 		if (pick?.hit) {
 			if (this.activeWeapon === 0) {
-				this.blaster.shootBlaster(this.blaster, scene, robotRightGun)
-				if(robotPuppet)
-					robotPuppet.setHealth = robotPuppet.health - 20
+				this.blaster.shootBlaster(
+					this.blaster, scene, robotRightGun, robotDummies)
 			}
 			else if (this.activeWeapon === 1) {
-				this.railgun.shootRailgun(this.railgun, scene, robotRightGun, pick.distance)
-				if(robotPuppet)
-					robotPuppet.setHealth = robotPuppet.health - 40
+				this.railgun.shootRailgun(
+					this.railgun, scene, robotRightGun, pick.distance, robotDummies)
 			}
 			else {
-				this.rocketLauncher.shootRocketLauncher(this.rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!)
-				if(robotPuppet)
-					robotPuppet.setHealth = robotPuppet.health - 60
+				this.rocketLauncher.shootRocketLauncher(
+					this.rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!, robotDummies)
 			}
 		}
 	}

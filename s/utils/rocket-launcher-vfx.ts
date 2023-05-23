@@ -13,7 +13,9 @@ import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem
 import {Sps} from "../types/Sps.js"
 import {Particle} from "../types/Particle.js"
 import {applyForceToMesh} from "./apply-force-to-mesh.js"
+import {damageRobotPuppet} from "./damage-robot-puppet.js"
 import {createBlastTexture} from "./create-blast-texture.js"
+import {Robot_puppet} from "../robot_puppet/robot-puppet.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
 import {createBlastDotTexture} from "./create-blastdot-texture.js"
 import {createConeBlastTexture} from "./create-coneblast-texture.js"
@@ -158,7 +160,7 @@ mesh: Mesh
 									let d3 = (d*0.8)+0.02
 									p.scale = new Vector3(d2,d2,d3)
 									
-									if(!this.testCollisions(p, Quaternion.FromRotationMatrix(matrix))){
+									if(!this.testCollisions(p, Quaternion.FromRotationMatrix(matrix), p.robotDummies)){
 											p.subEmitTick++
 											if(p.subEmitRate < p.subEmitTick ){
 													p.subEmitTick = 0
@@ -192,7 +194,7 @@ mesh: Mesh
 
 	}
 
-	testCollisions(p: Particle, rotation: any){
+	testCollisions(p: Particle, rotation: any, robotDummies?: Robot_puppet[]){
 			let ray = new Ray(p.position, p.direction, p.speed)
 			let pick = this.scene.pickWithRay(ray, (m)=>{
 					if((m as AbstractMesh & {shootable: boolean}).shootable){
@@ -200,9 +202,10 @@ mesh: Mesh
 					}
 					return false
 			})
-			if(pick?.hit){
-					this.hit(p, pick, rotation)
-					return true
+			if (pick?.hit) {
+				damageRobotPuppet(pick, 60, robotDummies)
+				this.hit(p, pick, rotation)
+				return true
 			}
 			return false
 	}
@@ -230,7 +233,7 @@ mesh: Mesh
 			this.sps.setParticles()
 	}
 
-	fire(robotRightGun: AbstractMesh, normal: Vector3) {
+	fire(robotRightGun: AbstractMesh, normal: Vector3, robotDummies?: Robot_puppet[]) {
 			const gunPosition = robotRightGun.getAbsolutePosition()
 			const gunForward = robotRightGun.forward
 			//MuzzleFlash
@@ -272,6 +275,8 @@ mesh: Mesh
 			p.uvs.w = 1.0
 			p.subEmitRate = 2
 			p.subEmitTick = 0
+			if(robotDummies)
+				p.robotDummies = robotDummies
 	}
 
 	subEmit(type: number, data: any, count = 3){
@@ -303,7 +308,8 @@ mesh: Mesh
 		blast: RocketLauncherVFX,
 		scene: Scene,
 		robotRightGun: AbstractMesh,
-		normal: Vector3) {
+		normal: Vector3,
+		robotDummies?: Robot_puppet[]) {
 		let timer = 300
 		let last = Date.now()
 		let time = 0
@@ -318,7 +324,7 @@ mesh: Mesh
 				last = n
 			}
 		})
-		blast.fire(robotRightGun, normal)
+		blast.fire(robotRightGun, normal, robotDummies)
 		e!.unregisterOnNextCall = true
 	}
 }

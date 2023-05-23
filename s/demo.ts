@@ -259,25 +259,7 @@ void async function main() {
 				robot_puppet.jump()
 			}
 			if (isLeftClick) {
-				const robotRightGun = robot_puppet.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
-				let ray = new Ray(new Vector3(robotRightGun.getAbsolutePosition().x, robotRightGun.getAbsolutePosition().y, robotRightGun.getAbsolutePosition().z), robotRightGun.forward.clone(), 10)
-				let pick = scene.pickWithRay(ray, (m)=>{
-					if((m as AbstractMesh & {shootable: boolean}).shootable && m.name !== robot_puppet.capsule.name){
-							return true
-					}
-					return false
-			})
-				const pickedRobotDummy = pick?.pickedMesh?.name.startsWith("dummy")
-				if (pickedRobotDummy) {
-					const index = Number(pick?.pickedMesh?.name.split("-")[2])
-					const robot_puppet_dummy = robotDummies[index]
-					robot_puppet.shoot(robot_puppet_dummy)
-				if (robot_puppet_dummy.isDead) {
-					robot_puppet_dummy.explode(
-						robot_puppet_dummy.capsule.getAbsolutePosition()
-					)
-				}
-				} else robot_puppet.shoot()
+				robot_puppet.shoot(robotDummies)
 			}
 			if (crouch) {
 				robot_puppet.crouch()
