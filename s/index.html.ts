@@ -1,14 +1,12 @@
 
-import {html} from "xiome/x/toolbox/hamster-html/html.js"
-import {WebsiteContext} from "xiome/x/toolbox/hamster-html/website/build-website-types.js"
+import {html} from "@benev/turtle"
+import basic_page from "./partials/basic_page.html.js"
 
-import pageHtml from "../partials/page.html.js"
-
-export default (context: WebsiteContext) => pageHtml({
-	...context,
-	title: "humanoid",
+export default basic_page({
 	html_class: "humanoid",
-	head: html`
+	title: "humanoid - benevolent.games",
+
+	head: ({v}) => html`
 		<script defer src="/assets/ammo/ammo.wasm.js"></script>
 		<script>
 			const isDevMode = new URLSearchParams(window.location.search).has("dev")
@@ -22,7 +20,7 @@ export default (context: WebsiteContext) => pageHtml({
 			}
 
 			if (isDevMode) {
-				loadModule("importmap-shim", "${context.v("/importmap.json")}")
+				loadModule("importmap-shim", "${v("/importmap.json")}")
 				loadModule("module-shim", "/demo.js")
 				loadModule("module", "/node_modules/es-module-shims/dist/es-module-shims.wasm.js")
 			}
@@ -31,8 +29,10 @@ export default (context: WebsiteContext) => pageHtml({
 			}
 		</script>
 	`,
-	main: html`
+
+	main: () => html`
 		<h1 data-loading>humanoid is loading...</h1>
 		<benev-theater view-mode="cinema"></benev-theater>
 	`,
 })
+
