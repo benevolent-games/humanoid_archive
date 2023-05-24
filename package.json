@@ -47,7 +47,7 @@
 		"xiome": "^0.0.45"
 	},
 	"devDependencies": {
-		"@benev/turtle": "^0.1.1",
+		"@benev/turtle": "^0.1.2",
 		"@rollup/plugin-node-resolve": "^15.0.2",
 		"chokidar": "^3.5.3",
 		"chokidar-cli": "^3.0.0",
