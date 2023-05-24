@@ -2,6 +2,7 @@
 import {Scene} from "@babylonjs/core/scene.js"
 import {Ray} from "@babylonjs/core/Culling/ray.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
+import {AssetContainer} from "@babylonjs/core/assetContainer.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
@@ -12,13 +13,13 @@ import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {v2, V2} from "@benev/toolbox/x/utils/v2.js"
 import {V3, v3} from "@benev/toolbox/x/utils/v3.js"
 import {loadGlb} from "../utils/babylon/load-glb.js"
-import {create_laser_beams} from "./create_laser_beams.js"
 import {add_to_look_vector_but_cap_vertical_axis} from "@benev/toolbox/x/babylon/flycam/utils/add_to_look_vector_but_cap_vertical_axis.js"
 
 import {RailgunVFX} from "../utils/railgun-vfx.js"
 import {BlasterVFX} from "../utils/blaster-vfx.js"
 import {RocketLauncherVFX} from "../utils/rocket-launcher-vfx.js"
 import {createPhysicsImpostor} from "../utils/create-physics-impostor.js"
+import {createHealthIndicator} from "../utils/create-health-indicator.js"
 
 const material = new StandardMaterial("capsule")
 material.alpha = 0.1
@@ -41,6 +42,8 @@ export class Robot_puppet {
 	coaster: TransformNode | undefined
 
 	health = 100
+	#updateHealthIndicator: (health: number) => void
+	#disposeHealthIndicator: () => void
 	activeWeapon = 0
 	railgun: RailgunVFX
 	blaster: BlasterVFX
@@ -53,6 +56,9 @@ export class Robot_puppet {
 		this.#coater_transform_node = new TransformNode("robot-coaster", scene)
 		this.#capsule_transform_node = new TransformNode("capsule",scene)
 		this.#capsule_transform_node.parent = this.capsule
+		const {updateHealthIndicator, dispose} = createHealthIndicator(this.capsule, scene)
+		this.#updateHealthIndicator = updateHealthIndicator
+		this.#disposeHealthIndicator = dispose
 
 		this.rocketLauncher = new RocketLauncherVFX("rocket-launcher", {
 			cache: 200
@@ -65,7 +71,7 @@ export class Robot_puppet {
 		}, scene)
 
 		this.is_loaded.then((m) => {
-			this.#hide_collision_meshes(m.meshes)
+			this.#hide_collision_meshes(m)
 			this.#assign_robot_parts(m.transformNodes)
 			if (this.root) {
 				this.root.position = new Vector3(0, -1, 0)
@@ -78,8 +84,8 @@ export class Robot_puppet {
 		return await loadGlb(this.#scene, `https://dl.dropbox.com/s/ka0uunak8h9fts5/spherebot3_1.glb`)
 	}
 
-	#hide_collision_meshes(meshes: AbstractMesh[]) {
-		meshes.forEach(mesh => {
+	#hide_collision_meshes(ac: AssetContainer) {
+		ac.meshes.forEach(mesh => {
 			if (mesh.id.startsWith("collision"))
 				mesh.visibility = 0
 		})
@@ -245,19 +251,20 @@ export class Robot_puppet {
 
 	explode(position: Vector3) {
 		this.is_loaded.then(m => {
+			this.#hide_collision_meshes(m)
 			for (const mesh of m.meshes) {
-				this.#hide_collision_meshes(m.meshes)
 				if (mesh.id.includes("collision")) {
 					createPhysicsImpostor(this.#scene, mesh, PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.9 }, true);
 					mesh.setAbsolutePosition(position)
-					this.capsule.dispose(true)
 				}
-				
 			}
 		})
+		this.#disposeHealthIndicator()
+		this.capsule.dispose(true)
 	}
 
 	set setHealth(health: number) {
+		this.#updateHealthIndicator(health)
 		this.health = health
 	}
 
