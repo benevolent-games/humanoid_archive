@@ -30,6 +30,7 @@ laserMaterial.emissiveColor = Color3.Red()
 export class Robot_puppet {
 	#scene: Scene
 	capsule: Mesh
+	meshName: string | undefined
 	is_loaded = this.#loadGlb()
 	current_look: V2 = v2.zero()
 	starting_position: V3 = v3.zero()
@@ -49,8 +50,9 @@ export class Robot_puppet {
 	blaster: BlasterVFX
 	rocketLauncher: RocketLauncherVFX
 
-	constructor(scene: Scene, position: V3) {
+	constructor(scene: Scene, position: V3, meshName?: string) {
 		this.#scene = scene
+		this.meshName = meshName
 		this.starting_position = position
 		this.capsule = this.#makeCapsule(3, position)
 		this.#coater_transform_node = new TransformNode("robot-coaster", scene)
@@ -120,7 +122,7 @@ export class Robot_puppet {
 	}
 
 	#makeCapsule(height: number, position: V3) {
-		const capsule = MeshBuilder.CreateCapsule("capsule", {
+		const capsule = MeshBuilder.CreateCapsule(`${this.meshName ? this.meshName : "capsule"}`, {
 			radius: 0.8,
 			height,
 			updatable: true,
@@ -130,7 +132,8 @@ export class Robot_puppet {
 			mass: 3,
 			friction: 2,
 			restitution: 0,
-		})
+		});
+		(capsule as Mesh & {shootable: boolean}).shootable = true
 		capsule.physicsImpostor.physicsBody.setAngularFactor(0)
 		capsule.material = material
 		return capsule
@@ -162,17 +165,25 @@ export class Robot_puppet {
 		this.setVerticalAim(y)
 	}
 
-	shoot() {
+	shoot(robotDummies?: Robot_puppet[]) {
 		const robotRightGun = this.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
 		const scene = this.#scene
 		const engine = scene.getEngine();
 		const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2)
 
 		if (pick?.hit) {
-			if (this.activeWeapon === 0)
-				this.blaster.shootBlaster(this.blaster, scene, robotRightGun)
-			else if (this.activeWeapon === 1) this.railgun.shootRailgun(this.railgun, scene, robotRightGun, pick.distance)
-			else this.rocketLauncher.shootRocketLauncher(this.rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!)
+			if (this.activeWeapon === 0) {
+				this.blaster.shootBlaster(
+					this.blaster, scene, robotRightGun, robotDummies)
+			}
+			else if (this.activeWeapon === 1) {
+				this.railgun.shootRailgun(
+					this.railgun, scene, robotRightGun, pick.distance, robotDummies)
+			}
+			else {
+				this.rocketLauncher.shootRocketLauncher(
+					this.rocketLauncher, scene, robotRightGun, pick!.getNormal(true)!, robotDummies)
+			}
 		}
 	}
 
@@ -252,6 +263,7 @@ export class Robot_puppet {
 	explode(position: Vector3) {
 		this.is_loaded.then(m => {
 			this.#hide_collision_meshes(m)
+			this.capsule.dispose(true)
 			for (const mesh of m.meshes) {
 				if (mesh.id.includes("collision")) {
 					createPhysicsImpostor(this.#scene, mesh, PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.9 }, true);
@@ -260,7 +272,6 @@ export class Robot_puppet {
 			}
 		})
 		this.#disposeHealthIndicator()
-		this.capsule.dispose(true)
 	}
 
 	set setHealth(health: number) {
@@ -269,6 +280,6 @@ export class Robot_puppet {
 	}
 
 	get isDead() {
-		return this.health === 0
+		return this.health <= 0
 	}
 }

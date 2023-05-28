@@ -4,6 +4,7 @@ import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
 import {PickingInfo} from "@babylonjs/core/Collisions/pickingInfo.js"
+import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 import {Texture} from "@babylonjs/core/Materials/Textures/texture.js"
 import {Matrix, Quaternion, Vector3} from "@babylonjs/core/Maths/math.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
@@ -12,11 +13,12 @@ import {SolidParticleSystem} from "@babylonjs/core/Particles/solidParticleSystem
 import {Sps} from "../types/Sps.js"
 import {Particle} from "../types/Particle.js"
 import {applyForceToMesh} from "./apply-force-to-mesh.js"
+import {damageRobotPuppet} from "./damage-robot-puppet.js"
+import {Robot_puppet} from "../robot_puppet/robot-puppet.js"
 import {createBlastTexture} from "./create-blast-texture.js"
 import {createBulletTexture} from "./create-bullet-texture.js"
 import {createBlastDotTexture} from "./create-blastdot-texture.js"
 import {createConeBlastTexture} from "./create-coneblast-texture.js"
-import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js"
 
 export class RailgunVFX{
 name: string
@@ -166,7 +168,7 @@ mesh: Mesh
 									}
 									p.position.addInPlace(p.direction.scale(p.speed))
 									p.distance+=p.speed
-							p.speed *= p.drag
+									p.speed *= p.drag
 							
 									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
 									const pitchAngle = Math.atan2(-p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
@@ -187,19 +189,21 @@ mesh: Mesh
 									let d3 = (d*0.8)+0.02
 									p.scale = new Vector3(d2,d2,p.distance)
 									
-									if(!this.testCollisions(p, Quaternion.FromRotationMatrix(matrix))){
+									if(!this.testCollisions(p, Quaternion.FromRotationMatrix(matrix), p.robotDummies)){
 											p.subEmitTick++
 											if(p.subEmitRate < p.subEmitTick ){
 													p.subEmitTick = 0
 													this.subEmit(3, {
 															parentId : p.idx,
 															distance : d,
-															position : p.position.clone()
+															position: p.position.clone(),
+															rotation: p.rotationQuaternion
 													})
 											}
 									}
 							break
-							case 3 :
+							case 3:
+									let pp = this.sps.particles[p.parent]
 									p.timer += this.delta
 									aTime = Math.min(p.timer/p.animationSpeed, 1)
 									xOff = Math.floor(aTime/p.animationStep)
@@ -217,7 +221,18 @@ mesh: Mesh
 									p.uvs.z = xOff + p.textureCellSize
 									p.uvs.w = yOff + p.textureCellSize
 
-									let pp = this.sps.particles[p.parent]
+									const matrix1 = Matrix.RotationYawPitchRoll(
+										-Math.atan2(pp.direction.z, pp.direction.x) + Math.PI / 2,
+										Math.atan2(-pp.direction.y, Math.sqrt(pp.direction.x * pp.direction.x + pp.direction.z * pp.direction.z)),
+										0
+									)
+									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix1)
+
+									p.scale.scaleInPlace(p.scaleUp)
+									if(p.scale.x>=p.scaleMax){
+											return this.sps.recycleParticle(p)
+									}
+
 									if(pp.distanceDelta <= 0){
 											return this.sps.recycleParticle(p)
 									}
@@ -272,7 +287,7 @@ mesh: Mesh
 
 	}
 
-	testCollisions(p: Particle, rotation: any){
+	testCollisions(p: Particle, rotation: any, robotDummies: Robot_puppet[]){
 			let ray = new Ray(p.position, p.direction, p.speed)
 			let pick = this.scene.pickWithRay(ray, (m)=>{
 					if((m as AbstractMesh & {shootable: boolean}).shootable) {
@@ -280,9 +295,10 @@ mesh: Mesh
 					}
 					return false
 			})
-			if(pick?.hit){
-					this.hit(p, pick, rotation)
-					return true
+			if (pick?.hit) {
+				damageRobotPuppet(pick, 40, robotDummies)
+				this.hit(p, pick, rotation)
+				return true
 			}
 			return false
 	}
@@ -296,16 +312,18 @@ mesh: Mesh
 					parentId: p.idx,
 					position: p.position,
 					speed: p.speed,
-				direction: normal,
-						rotation: rotation
+					direction: normal,
+					rotation: rotation
 			}, (Math.random()*3)+6)
 			this.subEmit(1, {
-					position:p.position
+					position: p.position,
+					rotation: rotation
 			})
 			this.subEmit(5, {
 					position:p.position,
 					distance: p.distanceDelta,
-				direction: p.direction,
+					direction: p.direction,
+					rotation: rotation
 			})
 			this.sps.recycleParticle(p)
 	}
@@ -316,7 +334,7 @@ mesh: Mesh
 			this.sps.setParticles()
 	}
 
-	fire(robotRightGun: AbstractMesh, distance: number) {
+	fire(robotRightGun: AbstractMesh, distance: number, robotDummies?: Robot_puppet[]) {
 		
 		const gunPosition = robotRightGun.getAbsolutePosition()
 		const gunForward = robotRightGun.forward
@@ -357,13 +375,12 @@ mesh: Mesh
 			p.animationSpeed = 200
 			p.lastFrame = p.pow2Count*p.pow2Count
 			p.animationStep = 1/(p.lastFrame+1)
-			
 			//ConeBlast
 			p = this.sps.particles[this.getCurrentSpawn(1)]
 			p.type = 1
 			p.scale = new Vector3(0.2,0.2,0.2)
 			p.rotation = this.aimNode!.rotation.clone()
-			p.position = new Vector3(0,0,0)
+			p.position = new Vector3(gunPosition.x, gunPosition.y, gunPosition.z)
 			p.scaleUp = 1.08
 			p.scaleMax = 0.8
 			p.timer = 0
@@ -376,8 +393,7 @@ mesh: Mesh
 			p.uvs.w = p.textureCellSize
 			p.animationSpeed = 400
 			p.lastFrame = p.pow2Count*p.pow2Count
-			p.animationStep = 1/(p.lastFrame+1)
-
+			p.animationStep = 1 / (p.lastFrame + 1)
 			//Bullet
 			p = this.sps.particles[this.getCurrentSpawn(2)]
 			p.type = 2
@@ -397,6 +413,8 @@ mesh: Mesh
 			p.uvs.w = 1.0
 			p.subEmitRate = 2
 			p.subEmitTick = 0
+			if(robotDummies)
+				p.robotDummies = robotDummies
 	}
 
 	subEmit(type: number, data: any, count = 1){
@@ -407,6 +425,7 @@ mesh: Mesh
 							p.type = 1
 							p.scale = new Vector3(0.5,0.5,0.5)
 							p.position = data.position.clone()
+							p.rotationQuaternion = data.rotation.clone()
 							p.scaleUp = 1.1
 							p.scaleMax = 2.
 							p.timer = 0
@@ -426,7 +445,8 @@ mesh: Mesh
 							p = this.sps.particles[this.getCurrentSpawn(3)]
 							p.type = 3
 							p.scale = new Vector3(0.3,0.3,0.3)
-							p.position = data.position
+							p.position = data.position.clone()
+							p.rotationQuaternion = data.rotation.clone()
 							p.scaleUp = 1.12
 							p.scaleMax = 0.8
 							p.timer = 0
@@ -457,8 +477,8 @@ mesh: Mesh
 									p.direction.x += (Math.sin(this.time*mr))
 									p.direction.y += (Math.cos(this.time*mr))
 									p.direction.z += (Math.sin(this.time*mr))
-								p.direction = p.direction.normalize()
-								p.rotationQuaternion = data.rotation
+									p.direction = p.direction.normalize()
+									p.rotationQuaternion = data.rotation.clone()
 							}
 					break;
 					case 5:
@@ -478,15 +498,7 @@ mesh: Mesh
 									p.animationSpeed = 3000
 									p.lastFrame = p.pow2Count*p.pow2Count
 									p.animationStep = 1 / (p.lastFrame + 1)
-									const yawAngle = -Math.atan2(p.direction.z, p.direction.x) + Math.PI / 2
-									const pitchAngle = Math.atan2(p.direction.y, Math.sqrt(p.direction.x * p.direction.x + p.direction.z * p.direction.z))
-									const rollAngle = Math.atan2(p.direction.y, p.direction.x)
-									let matrix = Matrix.RotationYawPitchRoll(
-										yawAngle,
-										pitchAngle,
-										0
-									)
-									p.rotationQuaternion = Quaternion.FromRotationMatrix(matrix)
+									p.rotationQuaternion = data.rotation.clone()
 					break;
 			}
 	}
@@ -506,7 +518,8 @@ mesh: Mesh
 		blast: RailgunVFX,
 		scene: Scene,
 		robotRightGun: AbstractMesh,
-		distance: number) {
+		distance: number,
+		robotDummies?: Robot_puppet[]) {
 		let timer = 300
 		let last = Date.now()
 		let time = 0
@@ -522,7 +535,7 @@ mesh: Mesh
 				last = n
 			}
 		})
-		blast.fire(robotRightGun, distance)
+		blast.fire(robotRightGun, distance, robotDummies)
 		e!.unregisterOnNextCall = true
 	}
 }

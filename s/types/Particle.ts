@@ -1,4 +1,5 @@
 import {Vector3} from "@babylonjs/core/Maths/math.js"
+import {Robot_puppet} from "../robot_puppet/robot-puppet.js"
 import {SolidParticle} from "@babylonjs/core/Particles/solidParticle.js"
 
 export interface Particle extends SolidParticle {
@@ -23,4 +24,5 @@ export interface Particle extends SolidParticle {
 	subEmitRate: number
 	subEmitTick: number
 	distanceDelta: number
+	robotDummies: Robot_puppet[]
 }
