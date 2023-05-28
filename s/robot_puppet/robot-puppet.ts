@@ -263,6 +263,7 @@ export class Robot_puppet {
 	explode(position: Vector3) {
 		this.is_loaded.then(m => {
 			this.#hide_collision_meshes(m)
+			this.capsule.dispose(true)
 			for (const mesh of m.meshes) {
 				if (mesh.id.includes("collision")) {
 					createPhysicsImpostor(this.#scene, mesh, PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.9 }, true);
@@ -271,7 +272,6 @@ export class Robot_puppet {
 			}
 		})
 		this.#disposeHealthIndicator()
-		this.capsule.dispose(true)
 	}
 
 	set setHealth(health: number) {
