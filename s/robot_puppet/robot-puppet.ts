@@ -30,7 +30,6 @@ laserMaterial.emissiveColor = Color3.Red()
 export class Robot_puppet {
 	#scene: Scene
 	capsule: Mesh
-	is_loaded = this.#loadGlb()
 	current_look: V2 = v2.zero()
 	starting_position: V3 = v3.zero()
 	#coater_transform_node: TransformNode
@@ -49,16 +48,22 @@ export class Robot_puppet {
 	blaster: BlasterVFX
 	rocketLauncher: RocketLauncherVFX
 
-	constructor(scene: Scene, position: V3) {
+	str: string
+	childMeshes: AbstractMesh[] | undefined
+
+	constructor(scene: Scene, position: V3, assets: AssetContainer, clone_prefix: string) {
 		this.#scene = scene
 		this.starting_position = position
 		this.capsule = this.#makeCapsule(3, position)
 		this.#coater_transform_node = new TransformNode("robot-coaster", scene)
 		this.#capsule_transform_node = new TransformNode("capsule",scene)
 		this.#capsule_transform_node.parent = this.capsule
+
 		const {updateHealthIndicator, dispose} = createHealthIndicator(this.capsule, scene)
 		this.#updateHealthIndicator = updateHealthIndicator
 		this.#disposeHealthIndicator = dispose
+
+		this.str = clone_prefix
 
 		this.rocketLauncher = new RocketLauncherVFX("rocket-launcher", {
 			cache: 200
@@ -70,34 +75,39 @@ export class Robot_puppet {
 			cache:200
 		}, scene)
 
-		this.is_loaded.then((m) => {
-			this.#hide_collision_meshes(m)
-			this.#assign_robot_parts(m.transformNodes)
-			if (this.root) {
-				this.root.position = new Vector3(0, -1, 0)
-				this.root.parent = this.capsule
-			}
-		})
+		this.#assign_robot_parts(this.createInstance(assets))
+		if (this.root) {
+			this.root.position = new Vector3(0, -1, 0)
+			this.root.parent = this.capsule
+		}
 	}
 
-	async #loadGlb() {
-		return await loadGlb(this.#scene, `https://dl.dropbox.com/s/ka0uunak8h9fts5/spherebot3_1.glb`)
-	}
-
-	#hide_collision_meshes(ac: AssetContainer) {
-		ac.meshes.forEach(mesh => {
-			if (mesh.id.startsWith("collision"))
+	createInstance(assets: AssetContainer) {
+		const entries = assets.instantiateModelsToScene(name => this.str+name)
+		const nodes = entries.rootNodes[0].getChildTransformNodes(
+			false,
+			(
+				n => n.name === this.str+"root" ||
+				n.name === this.str+"upper" ||
+				n.name === this.str+"coaster"
+			)
+		)
+		const child_meshes = entries.rootNodes[0].getChildMeshes()
+		child_meshes.forEach(mesh => {
+			if (mesh.name.startsWith(this.str+"collision"))
 				mesh.visibility = 0
 		})
+		this.childMeshes = child_meshes
+		return nodes
 	}
 
 	#assign_robot_parts(nodes: TransformNode[]) {
 		nodes.forEach(node => {
-			if (node.id === "root")
+			if (node.name === this.str+"root")
 					this.root = node
-			if (node.id === "upper")
+			if (node.name === this.str+"upper")
 				this.upper = node
-			if (node.id === "coaster")
+			if (node.name === this.str+"coaster")
 				this.coaster = node
 		})
 	}
@@ -163,7 +173,7 @@ export class Robot_puppet {
 	}
 
 	shoot() {
-		const robotRightGun = this.upper?.getChildMeshes().find(m => m.name == "nocollision_spherebot_gunright1_primitive0")!
+		const robotRightGun = this.upper?.getChildMeshes().find(m => m.name === this.str+"nocollision_spherebot_gunright1_primitive0")!
 		const scene = this.#scene
 		const engine = scene.getEngine();
 		const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2)
@@ -250,13 +260,10 @@ export class Robot_puppet {
 	}
 
 	explode(position: Vector3) {
-		this.is_loaded.then(m => {
-			this.#hide_collision_meshes(m)
-			for (const mesh of m.meshes) {
-				if (mesh.id.includes("collision")) {
-					createPhysicsImpostor(this.#scene, mesh, PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.9 }, true);
-					mesh.setAbsolutePosition(position)
-				}
+		this.childMeshes?.forEach(mesh => {
+			if (mesh.id.includes("collision")) {
+				createPhysicsImpostor(this.#scene, mesh, PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.9 }, true);
+				mesh.setAbsolutePosition(position)
 			}
 		})
 		this.#disposeHealthIndicator()

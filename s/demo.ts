@@ -83,11 +83,17 @@ void async function main() {
 			},
 		},
 	})
-	const robot_puppet_dummy = new Robot_puppet(scene, [5, 5, 5])
-	await robot_puppet_dummy.is_loaded
 
-	const robot_puppet = new Robot_puppet(scene, [0, 0, 0])
-	await robot_puppet.is_loaded
+	const robot_assets = await loadGlb(scene, `https://dl.dropbox.com/s/ka0uunak8h9fts5/spherebot3_1.glb`)
+
+	const robot_puppet_dummy = new Robot_puppet(
+		scene, [5, 5, 5], robot_assets, "dummy"
+	)
+	const robot_puppet = new Robot_puppet(
+		scene, [0, 0, 0], robot_assets, "main"
+	)
+
+	robot_assets.meshes.forEach(mesh => mesh.visibility = 0)
 
 	integrate_nubs_to_control_character_capsule({
 		nub_context: nubContext!,
